@@ -198,7 +198,7 @@ function updateHeader() {
   if (!el || !currentUser) return;
   const remaining = getCoinsRemaining(currentUser);
   const teams = getTotalTeams(currentUser);
-  el.textContent = `${currentUser} · 💰 ${remaining} coins · 🏳️ ${teams} teams`;
+  el.textContent = `${currentUser} · 💰 ${remaining} coins · ${teams} teams`;
 }
 
 // ============================================
