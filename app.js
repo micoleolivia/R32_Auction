@@ -975,7 +975,7 @@ function renderTrialLanding() {
     <div class="live-waiting">
       <div class="live-waiting-icon">🎮</div>
       <div class="live-waiting-title">Ready to practice?</div>
-      <div class="live-waiting-sub" style="max-width:420px;margin:0 auto">3 sample matches, 100 practice coins, 4 simulated bidders. Replay as many times as you like — nothing here counts toward the real game.</div>
+      <div class="live-waiting-sub" style="max-width:420px;margin:0 auto">3 sample matches, 100 practice coins, 4 simulated bidders. Replay as many times as you like, nothing here counts toward the real game.</div>
       <div class="trial-disclaimer">⚠️ On the real auction day, the live auction will only be started by the admin (Micole) — not by each player individually.</div>
       <button class="cta-btn" style="margin-top:20px" onclick="startTrial()">▶ Start Practice Run</button>
     </div>`;
