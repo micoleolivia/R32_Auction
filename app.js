@@ -736,26 +736,34 @@ function renderLeaderboard() {
     return;
   }
 
-  // Results exist — show counts only (still no team names on the leaderboard itself)
-  const scored = PLAYERS.map(p => ({
-    ...p,
-    total: getTotalTeams(p.name),
-  })).sort((a,b) => b.total - a.total);
+  // Results exist — show REVEALED counts only, NOT true totals.
+  // A team becomes "known" to belong to someone the moment it WINS a match (since that's
+  // what triggers the reveal feed entry). Teams sitting unplayed stay completely secret,
+  // even though they still count toward that player's real total behind the scenes.
+  const revealedSlotIds = new Set();
+  Object.values(state.matchResults).forEach(r => revealedSlotIds.add(r.winnerSlot));
+
+  const revealedTotals = PLAYERS.map(p => {
+    const col = getCollection(p.name);
+    const knownCount = col.filter(c => revealedSlotIds.has(c.slotId)).length;
+    return { ...p, known: knownCount };
+  }).sort((a,b) => b.known - a.known);
 
   const medals  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
   const classes = ['first','second','third','',''];
 
-  scored.forEach((player, i) => {
+  revealedTotals.forEach((player, i) => {
     const row = document.createElement('div');
     row.className = `leaderboard-row ${classes[i]||''}`;
     row.innerHTML = `
       <div class="lb-position">${medals[i]}</div>
       <div class="lb-info">
         <div class="lb-name">${player.icon} ${player.name}</div>
+        <div class="lb-type">could have more in secret 🤫</div>
       </div>
       <div>
-        <div class="lb-points" style="color:var(--gold)">${player.total}</div>
-        <div class="lb-pts-label">TEAMS</div>
+        <div class="lb-points" style="color:var(--gold)">${player.known}</div>
+        <div class="lb-pts-label">KNOWN</div>
       </div>`;
     container.appendChild(row);
   });
