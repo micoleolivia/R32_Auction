@@ -1202,6 +1202,8 @@ function renderRules() {
 
       <h3>How Bidding Works</h3>
 
+       <p>Auction starts at 18:00 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
+      
       <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
 
       <p>The minimum bid that can be made is 5 coins.</p>
