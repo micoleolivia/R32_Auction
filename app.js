@@ -693,34 +693,31 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
   if (winnerHolder && loserHolder && winnerHolder === loserHolder) {
     state.collection[winnerHolder] = (state.collection[winnerHolder]||[]).filter(c => c.slotId !== loserSlot);
     feedEntry.kind = 'neutral';
-    feedEntry.msg = `⚽ <strong>${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}</strong> won an all-self matchup — ${winner?.flag} ${winner?.name} beat their own ${loser?.flag} ${loser?.name}. ${loser?.name} is eliminated.`;
+    feedEntry.msg = `⚽ <strong>${winnerHolder}</strong> won an all-self matchup — ${winner?.name} beat their own ${loser?.name}. ${loser?.name} is eliminated.`;
     showToast(`${winner?.name} beat your own ${loser?.name} — eliminated`,'');
   } else if (winnerHolder) {
     if (loserHolder) {
       state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
       if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
       state.collection[winnerHolder].push({ slotId: loserSlot, how:'stolen' });
-      const wp = PLAYERS.find(p=>p.name===winnerHolder), lp = PLAYERS.find(p=>p.name===loserHolder);
       feedEntry.kind = 'steal';
-      feedEntry.msg = `🔥 <strong>${wp?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name}</strong> stole <strong>${loser?.flag} ${loser?.name}</strong> from <strong>${lp?.icon} ${loserHolder}</strong>!`;
+      feedEntry.msg = `🔥 <strong>${winnerHolder}'s ${winner?.name}</strong> stole <strong>${loser?.name}</strong> from <strong>${loserHolder}</strong>!`;
       showToast(`${winnerHolder} stole ${loser?.name} from ${loserHolder}! 🔥`,'success');
     } else {
       if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
       state.collection[winnerHolder].push({ slotId: loserSlot, how:'collected' });
-      const wp = PLAYERS.find(p=>p.name===winnerHolder);
       feedEntry.kind = 'collect';
-      feedEntry.msg = `✅ <strong>${wp?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name}</strong> collected unowned <strong>${loser?.flag} ${loser?.name}</strong>!`;
+      feedEntry.msg = `✅ <strong>${winnerHolder}'s ${winner?.name}</strong> collected unowned <strong>${loser?.name}</strong>!`;
       showToast(`${winnerHolder} collected ${loser?.name}! ✅`,'success');
     }
   } else if (loserHolder) {
     state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
-    const lp = PLAYERS.find(p=>p.name===loserHolder);
     feedEntry.kind = 'loss';
-    feedEntry.msg = `❌ Unowned ${winner?.flag} ${winner?.name} eliminated <strong>${lp?.icon} ${loserHolder}'s ${loser?.flag} ${loser?.name}</strong> — team is gone, nobody gains it.`;
+    feedEntry.msg = `❌ Unowned ${winner?.name} eliminated <strong>${loserHolder}'s ${loser?.name}</strong> — team is gone, nobody gains it.`;
     showToast(`${loser?.name} eliminated — ${loserHolder} loses their team`,'');
   } else {
     feedEntry.kind = 'neutral';
-    feedEntry.msg = `👻 ${winner?.flag} ${winner?.name} beat ${loser?.flag} ${loser?.name} — both unowned, nothing changes.`;
+    feedEntry.msg = `👻 ${winner?.name} beat ${loser?.name} — both unowned, nothing changes.`;
   }
 
   state.revealFeed.unshift(feedEntry);
