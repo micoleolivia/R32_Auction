@@ -21,11 +21,11 @@ const db = getFirestore(firebaseApp);
 // PLAYERS
 // ============================================
 const PLAYERS = [
-  { name: 'Micole',   icon: '🐻' },
-  { name: 'Mom',      icon: '🦒' },
-  { name: 'Zac',      icon: '🦥' },
-  { name: 'Sean',     icon: '🦅' },
-  { name: 'Patricia', icon: '🦩' },
+  { name: 'Micole',   icon: '🍓' },
+  { name: 'Mom',      icon: '🍐' },
+  { name: 'Zac',      icon: '🍎' },
+  { name: 'Sean',     icon: '🍍' },
+  { name: 'Patricia', icon: '🍇' },
 ];
 
 const STARTING_COINS = 100;
@@ -198,7 +198,7 @@ function updateHeader() {
   if (!el || !currentUser) return;
   const remaining = getCoinsRemaining(currentUser);
   const teams = getTotalTeams(currentUser);
-  el.textContent = `${currentUser} · 💰 ${remaining} coins · ${teams} teams`;
+  el.textContent = `${currentUser} · 🪙 ${remaining} coins · 🏳️ ${teams} teams`;
 }
 
 // ============================================
@@ -416,7 +416,7 @@ function renderAuction() {
       <div class="live-waiting">
         <div class="live-waiting-icon">⏳</div>
         <div class="live-waiting-title">Waiting for the auction to start...</div>
-        <div class="live-waiting-sub">💰 You have ${getCoinsRemaining(currentUser)} coins ready to bid</div>
+        <div class="live-waiting-sub">🪙 You have ${getCoinsRemaining(currentUser)} coins ready to bid</div>
         ${isAdmin ? `<button class="cta-btn" style="margin-top:24px" onclick="startLiveAuction()">🔥 Start Live Auction</button>` : ''}
       </div>`;
     return;
@@ -449,7 +449,7 @@ function renderAuction() {
 
   container.innerHTML = `
     <div class="live-progress">Match ${la.matchIndex + 1} of ${r32Matches.length}</div>
-    <div class="live-coins">💰 ${getCoinsRemaining(currentUser)} coins available</div>
+    <div class="live-coins">🪙 ${getCoinsRemaining(currentUser)} coins available</div>
     <div class="live-matchup">
       <div class="live-team">
         <div class="live-flag">${slotA?.flag}</div>
@@ -584,7 +584,7 @@ function renderAuctionPhase() {
     zone.innerHTML = `
       <div class="live-reveal-title">Results</div>
       ${resultHTML}
-      <div class="live-balance">💰 ${getCoinsRemaining(currentUser)} coins remaining</div>
+      <div class="live-balance">🪙 ${getCoinsRemaining(currentUser)} coins remaining</div>
       ${nextHTML}`;
   }
 }
@@ -657,9 +657,9 @@ function renderMyPicks() {
   const summary = document.createElement('div');
   summary.className = 'squad-summary';
   summary.innerHTML = `
-    <div class="squad-stat"><div class="squad-stat-val">💰 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
-    <div class="squad-stat"><div class="squad-stat-val">💰 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
-    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)"> ${myCol.length}</div><div class="squad-stat-lbl">total teams bought</div></div>
+    <div class="squad-stat"><div class="squad-stat-val">🪙 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
+    <div class="squad-stat"><div class="squad-stat-val">🪙 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">🏳️ ${myCol.length}</div><div class="squad-stat-lbl">total teams</div></div>
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
   container.appendChild(summary);
 
@@ -841,7 +841,7 @@ function renderLeaderboard() {
     // Before any World Cup results — total secrecy, just show everyone at 0
     const intro = document.createElement('div');
     intro.className = 'leaderboard-empty';
-    intro.innerHTML = '🤫 Ownership is secret! The leaderboard activates once real match results are entered, that\'s when steals/collections are revealed.';
+    intro.innerHTML = '🤫 Ownership is secret! The leaderboard activates once real match results are entered — that\'s when steals get revealed.';
     container.appendChild(intro);
 
     PLAYERS.forEach((player, i) => {
@@ -975,7 +975,7 @@ function renderTrialLanding() {
     <div class="live-waiting">
       <div class="live-waiting-icon">🎮</div>
       <div class="live-waiting-title">Ready to practice?</div>
-      <div class="live-waiting-sub" style="max-width:420px;margin:0 auto">3 sample matches, 100 practice coins, 4 simulated bidders. Replay as many times as you like, nothing here counts toward the real game.</div>
+      <div class="live-waiting-sub" style="max-width:420px;margin:0 auto">3 sample matches, 100 practice coins, 4 simulated bidders. Replay as many times as you like — nothing here counts toward the real game.</div>
       <div class="trial-disclaimer">⚠️ On the real auction day, the live auction will only be started by the admin (Micole) — not by each player individually.</div>
       <button class="cta-btn" style="margin-top:20px" onclick="startTrial()">▶ Start Practice Run</button>
     </div>`;
@@ -1094,7 +1094,7 @@ function renderTrial() {
   const match = TRIAL_MATCHES[trial.matchIndex];
   container.innerHTML = `
     <div class="live-progress">Practice Match ${trial.matchIndex + 1} of ${TRIAL_MATCHES.length}</div>
-    <div class="live-coins">💰 ${trial.coins} coins available</div>
+    <div class="live-coins">🪙 ${trial.coins} coins available</div>
     <div class="live-matchup">
       <div class="live-team"><div class="live-flag">${match.teamA.flag}</div><div class="live-name">${match.teamA.name}</div></div>
       <div class="live-vs">VS</div>
@@ -1174,84 +1174,47 @@ function renderTrialPhase() {
     zone.innerHTML = `
       <div class="live-reveal-title">Results</div>
       ${resultHTML}
-      <div class="live-balance">💰 ${trial.coins} coins remaining</div>
+      <div class="live-balance">🪙 ${trial.coins} coins remaining</div>
       ${nextHTML}`;
   }
 }
 
 
 function renderRules() {
-
   const container = document.getElementById('rules-container');
-
   if (!container) return;
-
   container.innerHTML = `
-
     <div class="rules-block">
-
-      <h3>The Gist</h3>
-
+      <h3>⚡ The Gist</h3>
       <p>It's a live, blind auction for World Cup teams.</p>
-
       <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
-
     </div>
-
     <div class="rules-block">
-
-      <h3>How Bidding Works</h3>
-
+      <h3>🔒 How Bidding Works</h3>
       <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
-
-      <p>The minimum bid that can be made is 5 coins.</p>
-
       <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
-
-      <p>${REVEAL_SECONDS} 10 seconds later you see your own result: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
-
-      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from who).</p>
-
+      <p>${REVEAL_SECONDS} seconds later you see your own result — either a congratulatory message or a "sorry, you lost" message — then it's straight on to the next match.</p>
+      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens — who stole what from who.</p>
       <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
-
     </div>
-
     <div class="rules-block">
-
-      <h3>How to Get More Teams After the Auction</h3>
-
+      <h3>🔥 How to Get More Teams After the Auction</h3>
       <div class="rules-scoring">
-
         <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their losing team</div>
-
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
-
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
-
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team just disappears and belongs to no one</div>
-
       </div>
-
     </div>
-
     <div class="rules-block">
-
-      <h3>💡 A Little Hint 💡</h3>
-
-      <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team, spread it out, or don't and accept that you're limiting your own chances of climbing the leaderboard.</p>
-
+      <h3>💡 A Little Hint</h3>
+      <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team — spread it out, or don't, and accept that you're limiting your own chances of climbing the leaderboard.</p>
     </div>
-
     <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
-
-      <h3>Want a Trial Run?</h3>
-
+      <h3>🎮 Want a Trial Run?</h3>
       <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like. Nothing there counts.</p>
-
     </div>`;
-
 }
-
 
 // ============================================
 // LOADING, TOAST, RESET
