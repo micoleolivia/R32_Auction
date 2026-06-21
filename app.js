@@ -1208,7 +1208,7 @@ function renderRules() {
 
       <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
 
-      <p>${REVEAL_SECONDS} 10 seconds later you see your own result: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
+      <p>${REVEAL_SECONDS} seconds later you see your own result: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
 
       <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from who).</p>
 
