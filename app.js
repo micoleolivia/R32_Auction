@@ -1210,7 +1210,7 @@ function renderRules() {
 
       <p>${REVEAL_SECONDS} seconds later you see your own result: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
 
-      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from who).</p>
+      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from whom).</p>
 
       <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
 
