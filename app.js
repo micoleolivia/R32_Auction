@@ -1,233 +1,1191 @@
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#07090f;--bg2:#0e1220;--bg3:#161c2e;--card:#111827;--card2:#1a2235;
-  --border:#1e2d45;--gold:#f5c518;--gold2:#e6a800;--teal:#00d4aa;--red:#ff4757;
-  --green:#10a37f;--blue:#3b82f6;--text:#e8eaf0;--text2:#8896b0;--text3:#4a5568;
-  --radius:12px;--radius-lg:20px;--shadow:0 4px 24px rgba(0,0,0,.4);
-  --shadow-gold:0 0 30px rgba(245,197,24,.15);
-  --bet:#a855f7;--bet2:#9333ea;
-}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-.hidden{display:none!important}
+// ============================================
+// FIREBASE SETUP
+// ============================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* LOGIN */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.login-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(245,197,24,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(0,212,170,.06) 0%,transparent 50%)}
-.login-bg::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(255,255,255,.015) 60px,rgba(255,255,255,.015) 61px),repeating-linear-gradient(90deg,transparent,transparent 60px,rgba(255,255,255,.015) 60px,rgba(255,255,255,.015) 61px)}
-.login-content{position:relative;text-align:center;padding:40px 24px;max-width:520px;width:100%}
-.login-badge{display:inline-block;border:1px solid var(--gold);color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:.85rem;letter-spacing:4px;padding:6px 18px;border-radius:100px;margin-bottom:24px}
-.login-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,14vw,90px);line-height:.9;margin-bottom:8px;text-shadow:0 0 60px rgba(245,197,24,.2)}
-.login-sub{color:var(--text2);font-size:1rem;margin-bottom:36px;letter-spacing:1px}
-#player-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-#player-buttons .player-btn:last-child:nth-child(odd){grid-column:1/-1}
-.player-btn{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);color:var(--text);padding:20px 16px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:1.1rem;font-weight:600;transition:all .2s;position:relative;overflow:hidden}
-.player-btn:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--shadow-gold)}
-.player-icon{font-size:2rem}
-.player-tag{font-size:.65rem;font-weight:500;letter-spacing:1px;padding:2px 8px;border-radius:100px;background:rgba(245,197,24,.15);color:var(--gold);border:1px solid rgba(245,197,24,.3)}
-.mom-btn:hover{border-color:#a855f7;box-shadow:0 0 30px rgba(168,85,247,.15)}
-.zac-btn:hover{border-color:var(--red);box-shadow:0 0 30px rgba(255,71,87,.15)}
-.micole-btn:hover{border-color:var(--gold);box-shadow:0 0 30px rgba(245,197,24,.15)}
-.sean-btn:hover{border-color:#06b6d4;box-shadow:0 0 30px rgba(6,182,212,.15)}
-.patricia-btn:hover{border-color:#f472b6;box-shadow:0 0 30px rgba(244,114,182,.15)}
+const firebaseConfig = {
+  apiKey: "AIzaSyApfMg-55DRSjQcWtq4Ml2B1yGh3MvZ_TM",
+  authDomain: "worldcup2026-a5bd7.firebaseapp.com",
+  projectId: "worldcup2026-a5bd7",
+  storageBucket: "worldcup2026-a5bd7.firebasestorage.app",
+  messagingSenderId: "358912564554",
+  appId: "1:358912564554:web:5ae46c7c186a4918f2b5b3"
+};
 
-/* HEADER */
-header{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:64px;background:rgba(7,9,15,.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);gap:12px;flex-wrap:wrap}
-.header-left{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.header-logo{font-size:1.4rem}
-.header-title{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--gold);line-height:1}
-.header-welcome{font-size:.7rem;color:var(--text2);margin-top:2px}
-#main-nav{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;flex:1}
-.nav-btn{background:transparent;border:1px solid transparent;color:var(--text2);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;transition:all .15s;white-space:nowrap}
-.nav-btn:hover{color:var(--text);background:var(--bg3)}
-.nav-btn.active{background:var(--gold);color:#000;border-color:var(--gold);font-weight:600}
-.header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}
-.logout-btn{background:transparent;border:1px solid var(--border);color:var(--text2);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-size:.78rem;transition:all .15s;font-family:'DM Sans',sans-serif}
-.logout-btn:hover{border-color:var(--text2);color:var(--text)}
-.reset-btn{background:transparent;border:1px solid rgba(255,71,87,.4);color:var(--red);padding:6px 10px;border-radius:var(--radius);cursor:pointer;font-size:.78rem;transition:all .15s;font-family:'DM Sans',sans-serif}
-.reset-btn:hover{background:rgba(255,71,87,.1);border-color:var(--red)}
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
 
-/* SECTIONS */
-.section{max-width:1200px;margin:0 auto;padding:28px 20px 60px}
-.section-header{margin-bottom:24px}
-.section-header h2{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:2px;margin-bottom:4px}
-.section-header p{color:var(--text2);font-size:.88rem}
+// ============================================
+// PLAYERS
+// ============================================
+const PLAYERS = [
+  { name: 'Micole',   icon: '🐻' },
+  { name: 'Mom',      icon: '🦒' },
+  { name: 'Zac',      icon: '🦥' },
+  { name: 'Sean',     icon: '🦅' },
+  { name: 'Patricia', icon: '🦩' },
+];
 
-/* LIVE AUCTION */
-.live-waiting{text-align:center;padding:80px 20px;max-width:480px;margin:0 auto}
-.live-waiting-icon{font-size:3.5rem;margin-bottom:16px}
-.live-waiting-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:1px;color:var(--text);margin-bottom:8px}
-.live-waiting-sub{color:var(--text2);font-size:.9rem}
+const STARTING_COINS = 100;
+const BID_SECONDS     = 20;  // blind bid window
+const REVEAL_SECONDS  = 10;  // result + next match preview window
 
-.live-progress{text-align:center;font-size:.78rem;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
-.live-coins{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold);margin-bottom:20px}
-.live-matchup{display:flex;align-items:center;justify-content:center;gap:24px;max-width:600px;margin:0 auto 24px;flex-wrap:wrap}
-.live-team{text-align:center;flex:1;min-width:140px}
-.live-flag{font-size:4rem;margin-bottom:8px}
-.live-name{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:1px;color:var(--text)}
-.live-placeholder{font-size:.72rem;color:var(--bet);font-style:italic;margin-top:4px}
-.live-vs{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--text3);flex-shrink:0}
+// ============================================
+// ROUND OF 32 SLOTS
+// ============================================
+const slots = [
+  { id:'s1',  name:'Brazil',            flag:'🇧🇷', confirmed:true,  group:'C' },
+  { id:'s2',  name:'France',            flag:'🇫🇷', confirmed:true,  group:'I' },
+  { id:'s3',  name:'Argentina',         flag:'🇦🇷', confirmed:true,  group:'J' },
+  { id:'s4',  name:'England',           flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', confirmed:true,  group:'L' },
+  { id:'s5',  name:'Spain',             flag:'🇪🇸', confirmed:true,  group:'H' },
+  { id:'s6',  name:'Germany',           flag:'🇩🇪', confirmed:true,  group:'E' },
+  { id:'s7',  name:'Portugal',          flag:'🇵🇹', confirmed:true,  group:'K' },
+  { id:'s8',  name:'Netherlands',       flag:'🇳🇱', confirmed:true,  group:'F' },
+  { id:'s9',  name:'Belgium',           flag:'🇧🇪', confirmed:true,  group:'G' },
+  { id:'s10', name:'Uruguay',           flag:'🇺🇾', confirmed:true,  group:'H' },
+  { id:'s11', name:'USA',               flag:'🇺🇸', confirmed:true,  group:'D' },
+  { id:'s12', name:'Canada',            flag:'🇨🇦', confirmed:true,  group:'B' },
+  { id:'s13', name:'Mexico',            flag:'🇲🇽', confirmed:true,  group:'A' },
+  { id:'s14', name:'Morocco',           flag:'🇲🇦', confirmed:true,  group:'C' },
+  { id:'s15', name:'Japan',             flag:'🇯🇵', confirmed:true,  group:'F' },
+  { id:'s16', name:'Senegal',           flag:'🇸🇳', confirmed:true,  group:'I' },
+  { id:'s17', name:'Colombia',          flag:'🇨🇴', confirmed:true,  group:'K' },
+  { id:'s18', name:'Ecuador',           flag:'🇪🇨', confirmed:true,  group:'E' },
+  { id:'s19', name:'Croatia',           flag:'🇭🇷', confirmed:true,  group:'L' },
+  { id:'s20', name:'South Korea',       flag:'🇰🇷', confirmed:true,  group:'A' },
+  { id:'s21', name:'Switzerland',       flag:'🇨🇭', confirmed:true,  group:'B' },
+  { id:'s22', name:'Austria',           flag:'🇦🇹', confirmed:true,  group:'J' },
+  { id:'s23', name:'Norway',            flag:'🇳🇴', confirmed:true,  group:'I' },
+  { id:'s24', name:'Türkiye',           flag:'🇹🇷', confirmed:true,  group:'D' },
+  { id:'s25', name:'DR Congo',          flag:'🇨🇩', confirmed:true,  group:'K' },
+  { id:'s26', name:'Group A Runner-up', flag:'🏳️', confirmed:false, placeholder:'South Africa or Czechia',  group:'A' },
+  { id:'s27', name:'Group B Runner-up', flag:'🏳️', confirmed:false, placeholder:'Bosnia & Herz. or Qatar', group:'B' },
+  { id:'s28', name:'Group D Runner-up', flag:'🏳️', confirmed:false, placeholder:'Australia or Paraguay',   group:'D' },
+  { id:'s29', name:'Group E Runner-up', flag:'🏳️', confirmed:false, placeholder:'Ivory Coast or Curaçao',  group:'E' },
+  { id:'s30', name:'Group F Runner-up', flag:'🏳️', confirmed:false, placeholder:'Sweden or Tunisia',       group:'F' },
+  { id:'s31', name:'Group G Runner-up', flag:'🏳️', confirmed:false, placeholder:'Egypt or Iran',           group:'G' },
+  { id:'s32', name:'Group L Runner-up', flag:'🏳️', confirmed:false, placeholder:'Ghana or Panama',         group:'L' },
+];
 
-.live-timer-bar-wrap{max-width:500px;margin:0 auto 8px;height:8px;background:var(--bg3);border-radius:100px;overflow:hidden}
-.live-timer-bar{height:100%;border-radius:100px;transition:width .4s linear}
-.live-timer-num{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--text);margin-bottom:20px}
+// Each match opens TWO simultaneous blind slot-auctions (one per team)
+const r32Matches = [
+  { id:'r32-1',  slotA:'s1',  slotB:'s26' },
+  { id:'r32-2',  slotA:'s13', slotB:'s20' },
+  { id:'r32-3',  slotA:'s12', slotB:'s21' },
+  { id:'r32-4',  slotA:'s27', slotB:'s2'  },
+  { id:'r32-5',  slotA:'s14', slotB:'s4'  },
+  { id:'r32-6',  slotA:'s19', slotB:'s32' },
+  { id:'r32-7',  slotA:'s11', slotB:'s24' },
+  { id:'r32-8',  slotA:'s28', slotB:'s6'  },
+  { id:'r32-9',  slotA:'s18', slotB:'s29' },
+  { id:'r32-10', slotA:'s31', slotB:'s9'  },
+  { id:'r32-11', slotA:'s15', slotB:'s30' },
+  { id:'r32-12', slotA:'s8',  slotB:'s16' },
+  { id:'r32-13', slotA:'s5',  slotB:'s10' },
+  { id:'r32-14', slotA:'s23', slotB:'s3'  },
+  { id:'r32-15', slotA:'s7',  slotB:'s17' },
+  { id:'r32-16', slotA:'s25', slotB:'s22' },
+];
 
-.live-bid-title{text-align:center;font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:16px}
-.live-bid-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:600px;margin:0 auto 12px}
-.live-bid-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center}
-.live-bid-team{font-size:.9rem;font-weight:700;margin-bottom:10px}
-.live-bid-locked{font-size:.85rem;font-weight:600;color:var(--teal);background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.25);padding:8px;border-radius:8px}
-.live-bid-hint{text-align:center;font-size:.74rem;color:var(--text3);max-width:500px;margin:8px auto 0}
+// ============================================
+// STATE
+// ============================================
+let currentUser = null;
+let state = {
+  // Live auction engine state
+  liveAuction: {
+    status: 'not_started',  // 'not_started' | 'bidding' | 'reveal' | 'finished'
+    matchIndex: 0,           // which match in r32Matches we're on
+    phaseStartedAt: null,    // ISO timestamp when current phase began
+  },
+  bids:         {},  // bids[slotId][username] = amount  (blind — only revealed after window closes)
+  bidTimestamps:{},  // bidTimestamps[slotId][username] = Date.now() when locked — breaks ties
+  owners:       {},  // owners[slotId] = { username, coins }
+  collection:   {},  // collection[username] = [{ slotId, how:'original'|'stolen'|'collected' }]
+  matchResults: {},  // matchResults[matchId] = { winnerSlot, loserSlot }
+  slotOverrides:{},  // slotOverrides[slotId] = { name, flag }
+  revealFeed:   [],  // [{ matchId, ts, msg }] — public feed of what's been revealed so far
+};
 
-.live-reveal-title{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:var(--gold);margin-bottom:14px}
-.live-result-row{max-width:500px;margin:0 auto 8px;padding:10px 16px;border-radius:var(--radius);font-size:.88rem;font-weight:600;text-align:center}
-.live-result-win{background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--teal)}
-.live-result-lose{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.25);color:var(--red)}
-.live-result-skip{background:var(--bg2);border:1px solid var(--border);color:var(--text3)}
-.live-balance{text-align:center;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--gold);margin:16px 0}
-.live-next-preview{text-align:center;font-size:.85rem;color:var(--text2);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;max-width:500px;margin:0 auto}
+let unsubscribe = null;
+let tickInterval = null;
+let lastRenderedKey = null;  // tracks matchIndex+status to avoid redundant full re-renders
 
-/* AUCTION SECTION TITLES */
-.auction-section-title{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:2px;color:var(--gold);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-
-/* BID INPUT/BTN (reused) */
-.bid-row{display:flex;gap:6px;align-items:center;justify-content:center}
-.bid-input{width:90px;height:40px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1.1rem;font-weight:700;text-align:center;font-family:'Bebas Neue',sans-serif;-moz-appearance:textfield}
-.bid-input::-webkit-outer-spin-button,.bid-input::-webkit-inner-spin-button{-webkit-appearance:none}
-.bid-input:focus{outline:none;border-color:var(--gold);background:var(--bg3)}
-.bid-btn{background:var(--gold);border:none;border-radius:8px;color:#000;font-size:.82rem;font-weight:700;padding:10px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap}
-.bid-btn:hover{background:var(--gold2)}
-.bid-remove-btn{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:.78rem;font-weight:700;padding:8px 14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.bid-remove-btn:hover{border-color:var(--red);color:var(--red)}
-
-/* SQUAD */
-.squad-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
-.squad-stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center}
-.squad-stat-val{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:1px;color:var(--text)}
-.squad-stat-lbl{font-size:.68rem;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
-.squad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
-.squad-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;text-align:center;transition:border-color .2s}
-.squad-card:hover{border-color:rgba(245,197,24,.2)}
-.squad-eliminated{opacity:.5;filter:grayscale(60%)}
-.squad-original{border-color:var(--teal)!important}
-.squad-stolen{border-color:var(--bet)!important}
-.squad-flag{font-size:2.2rem;margin-bottom:8px}
-.squad-name{font-size:.9rem;font-weight:700;margin-bottom:6px}
-.squad-how{font-size:.72rem;font-weight:600;margin-bottom:6px}
-.squad-status{font-size:.72rem;font-weight:600;padding:3px 8px;border-radius:6px;display:inline-block;margin-bottom:4px}
-.squad-status.active{background:rgba(0,212,170,.1);color:var(--teal);border:1px solid rgba(0,212,170,.25)}
-.squad-status.eliminated{background:rgba(255,71,87,.1);color:var(--red);border:1px solid rgba(255,71,87,.25)}
-.squad-empty{text-align:center;padding:60px 20px;color:var(--text2)}
-
-/* RESULTS */
-.results-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
-.result-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
-.result-teams{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap}
-.result-team{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;flex:1;text-align:center}
-.result-owner{font-size:.7rem;color:var(--text2);font-weight:400}
-.result-owner.no-owner{color:var(--text3);font-style:italic}
-.result-vs{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--text3);flex-shrink:0}
-.result-btns{display:flex;gap:8px;flex-direction:column}
-.result-pick-btn{width:100%;padding:9px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:left}
-.result-pick-btn:hover{background:var(--gold);border-color:var(--gold);color:#000}
-.result-done{text-align:center}
-.result-winner{font-size:.9rem;font-weight:700;color:var(--teal);margin-bottom:6px}
-.result-loser{font-size:.82rem;color:var(--red)}
-
-/* LEADERBOARD */
-#leaderboard-container{max-width:600px;margin:0 auto}
-.leaderboard-row{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:8px;position:relative;overflow:hidden}
-.leaderboard-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border)}
-.leaderboard-row.first{border-color:rgba(245,197,24,.4);background:linear-gradient(135deg,rgba(245,197,24,.06),var(--card))}
-.leaderboard-row.first::before{background:var(--gold)}
-.leaderboard-row.second::before{background:#c0c0c0}
-.leaderboard-row.third::before{background:#cd7f32}
-.lb-position{font-size:1.5rem;width:38px;text-align:center;flex-shrink:0}
-.lb-info{flex:1}
-.lb-name{font-size:1rem;font-weight:700}
-.lb-type{font-size:.72rem;color:var(--text2);margin-top:1px}
-.lb-breakdown{font-size:.7rem;color:var(--text2);margin-top:3px}
-.lb-teams{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
-.team-badge{font-size:.7rem;background:var(--bg3);border:1px solid var(--border);padding:3px 7px;border-radius:6px;color:var(--text2)}
-.team-badge-green{border-color:rgba(0,212,170,.4)!important;color:var(--teal)!important}
-.team-badge-purple{border-color:rgba(168,85,247,.4)!important;color:var(--bet)!important}
-.lb-points{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold);letter-spacing:1px}
-.lb-pts-label{font-size:.65rem;color:var(--text3);letter-spacing:1px;text-align:right}
-.leaderboard-empty{text-align:center;color:var(--text2);padding:30px 20px;font-size:.9rem}
-
-/* RULES */
-.rules-container{max-width:700px}
-.rules-block{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 24px;margin-bottom:14px}
-.rules-block h3{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;color:var(--gold);margin-bottom:10px}
-.rules-block p{color:var(--text2);font-size:.88rem;line-height:1.6;margin-bottom:12px}
-.rules-block p:last-child{margin-bottom:0}
-.rules-scoring{margin:14px 0;display:flex;flex-direction:column;gap:8px}
-.rules-score-row{display:flex;align-items:center;gap:12px;font-size:.85rem;color:var(--text)}
-.score-badge{display:inline-flex;align-items:center;justify-content:center;min-width:52px;height:24px;border-radius:6px;font-size:.78rem;font-weight:700;flex-shrink:0}
-.score-badge.gold{background:rgba(245,197,24,.2);color:var(--gold);border:1px solid rgba(245,197,24,.4)}
-.score-badge.neutral{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
-
-/* CTA BUTTON */
-.cta-btn{background:var(--gold);color:#000;border:none;padding:13px 36px;border-radius:100px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;transition:all .2s;box-shadow:0 4px 20px rgba(245,197,24,.3)}
-.cta-btn:hover{background:var(--gold2);transform:translateY(-2px);box-shadow:0 6px 28px rgba(245,197,24,.4)}
-
-/* LOADING & TOAST */
-.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:14px}
-.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{color:var(--text2);font-size:.88rem;letter-spacing:1px}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:11px 22px;border-radius:100px;font-size:.88rem;font-weight:500;z-index:1000;box-shadow:var(--shadow);animation:slideUp .3s ease}
-.toast.success{border-color:var(--teal);color:var(--teal)}
-.toast.error{border-color:var(--red);color:var(--red)}
-@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--text3)}
-
-/* RESPONSIVE */
-@media(max-width:640px){
-  header{height:auto;flex-wrap:wrap;padding:8px 12px}
-  #main-nav{order:3;width:100%;justify-content:center;padding-bottom:4px}
-  .nav-btn{padding:5px 8px;font-size:.72rem}
-  .section{padding:16px 12px 60px}
-  .squad-grid,.results-grid{grid-template-columns:1fr}
-  .squad-summary{grid-template-columns:1fr 1fr}
-  .login-title{font-size:52px}
-  .live-bid-grid{grid-template-columns:1fr}
-  .live-flag{font-size:3rem}
-  .live-matchup{gap:12px}
+// ============================================
+// FIREBASE
+// ============================================
+async function saveToFirebase(data) {
+  try {
+    await setDoc(doc(db,'worldcup2026_r32','shared'), data, { merge:true });
+  } catch(e) { showToast('Save failed','error'); }
 }
 
-/* REVEAL FEED */
-.reveal-feed{display:flex;flex-direction:column;gap:8px}
-.reveal-feed-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
-.reveal-feed-msg{font-size:.85rem;color:var(--text);line-height:1.5}
-.reveal-feed-time{font-size:.68rem;color:var(--text3);margin-top:6px}
+async function loadFromFirebase() {
+  try {
+    const snap = await getDoc(doc(db,'worldcup2026_r32','shared'));
+    return snap.exists() ? snap.data() : {};
+  } catch(e) { return {}; }
+}
 
-/* LEADERBOARD TEAM ROWS BY TYPE */
-.team-badge-blue{border-color:rgba(59,130,246,.4)!important;color:var(--blue)!important}
-.lb-teams{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
-.lb-teams-label{font-size:.68rem;color:var(--text3);font-weight:600;margin-right:2px}
-.squad-collected{border-color:var(--blue)!important}
+function startLiveListener() {
+  if (unsubscribe) unsubscribe();
+  unsubscribe = onSnapshot(doc(db,'worldcup2026_r32','shared'), snap => {
+    if (snap.exists()) {
+      const d = snap.data();
+      state.liveAuction   = d.liveAuction   || state.liveAuction;
+      state.bids          = d.bids          || {};
+      state.bidTimestamps = d.bidTimestamps || {};
+      state.owners        = d.owners        || {};
+      state.collection    = d.collection    || {};
+      state.matchResults  = d.matchResults  || {};
+      state.slotOverrides = d.slotOverrides || {};
+      state.revealFeed    = d.revealFeed    || [];
+      refreshAll();
+    }
+  });
+}
 
-/* REVEAL FEED v2 */
-.reveal-feed-item{border-left:3px solid var(--border)}
-.reveal-feed-steal{border-left-color:var(--bet)}
-.reveal-feed-collect{border-left-color:var(--blue)}
-.reveal-feed-loss{border-left-color:var(--text3)}
-.reveal-feed-neutral{border-left-color:var(--text3)}
-.reveal-feed-msg strong{color:var(--text);font-weight:700}
-.reveal-feed-expand-btn{display:block;margin:4px auto 0;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:.78rem;font-weight:600;padding:8px 18px;border-radius:100px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
-.reveal-feed-expand-btn:hover{border-color:var(--gold);color:var(--gold)}
+function refreshAll() {
+  updateHeader();
+  if (!document.getElementById('auction').classList.contains('hidden'))     renderAuction();
+  if (!document.getElementById('mypicks').classList.contains('hidden'))     renderMyPicks();
+  if (!document.getElementById('leaderboard').classList.contains('hidden')) renderLeaderboard();
+  if (!document.getElementById('results').classList.contains('hidden'))     renderResults();
+}
 
-/* LIVE BID — ONE TEAM PER MATCH */
-.live-bid-disabled{font-size:.78rem;color:var(--text3);background:var(--bg2);border:1px dashed var(--border);padding:10px;border-radius:8px;text-align:center}
+// ============================================
+// HELPERS
+// ============================================
+function getSlot(slotId) {
+  const base = slots.find(s => s.id === slotId);
+  if (!base) return null;
+  const ov = state.slotOverrides[slotId];
+  return ov ? { ...base, name:ov.name, flag:ov.flag, confirmed:true } : base;
+}
 
-/* TRIAL RUN */
-.trial-summary-teams{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;max-width:400px}
+function getCoinsSpent(username) {
+  let spent = 0;
+  Object.values(state.owners).forEach(o => { if (o.username === username) spent += o.coins; });
+  return spent;
+}
 
-/* TRIAL DISCLAIMER */
-.trial-disclaimer{max-width:420px;margin:18px auto 0;padding:12px 16px;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:var(--radius);font-size:.78rem;color:var(--gold);line-height:1.5}
+function getCoinsRemaining(username) {
+  return STARTING_COINS - getCoinsSpent(username);
+}
+
+function getCollection(username) {
+  return state.collection[username] || [];
+}
+
+function getTotalTeams(username) {
+  return getCollection(username).length;
+}
+
+function getCurrentHolder(slotId) {
+  for (const [username, col] of Object.entries(state.collection)) {
+    if (col.find(c => c.slotId === slotId)) return username;
+  }
+  return null;
+}
+
+function updateHeader() {
+  const el = document.getElementById('welcome-msg');
+  if (!el || !currentUser) return;
+  const remaining = getCoinsRemaining(currentUser);
+  const teams = getTotalTeams(currentUser);
+  el.textContent = `${currentUser} · 🪙 ${remaining} coins · 🏳️ ${teams} teams`;
+}
+
+// ============================================
+// LOGIN / LOGOUT
+// ============================================
+async function login(name) {
+  showLoading(true);
+  const d = await loadFromFirebase();
+  state.liveAuction   = d.liveAuction   || state.liveAuction;
+  state.bids          = d.bids          || {};
+  state.bidTimestamps = d.bidTimestamps || {};
+  state.owners        = d.owners        || {};
+  state.collection    = d.collection    || {};
+  state.matchResults  = d.matchResults  || {};
+  state.slotOverrides = d.slotOverrides || {};
+  state.revealFeed    = d.revealFeed    || [];
+
+  currentUser = name;
+  const isAdmin = name === 'Micole';
+
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('reset-btn').classList.toggle('hidden', !isAdmin);
+  document.getElementById('nav-results').classList.toggle('hidden', !isAdmin);
+
+  updateHeader();
+  renderRules();
+  renderAuction();
+  renderMyPicks();
+  renderLeaderboard();
+  if (isAdmin) renderResults();
+
+  showSection('rules', { target: document.getElementById('nav-rules') });
+  startLiveListener();
+  startTicker();
+  showLoading(false);
+}
+
+function logout() {
+  if (unsubscribe) unsubscribe();
+  if (tickInterval) clearInterval(tickInterval);
+  currentUser = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+window.login  = login;
+window.logout = logout;
+
+// ============================================
+// NAVIGATION
+// ============================================
+function showSection(id, e) {
+  document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (e && e.target) e.target.classList.add('active');
+  if (id === 'auction')     renderAuction();
+  if (id === 'mypicks')     renderMyPicks();
+  if (id === 'leaderboard') renderLeaderboard();
+  if (id === 'results')     renderResults();
+  if (id === 'trial')       initTrial();
+}
+window.showSection = showSection;
+
+// ============================================
+// LIVE AUCTION ENGINE
+// ============================================
+
+// Ticker runs every 500ms to check phase transitions (admin drives state changes; everyone reads countdown)
+function startTicker() {
+  if (tickInterval) clearInterval(tickInterval);
+  tickInterval = setInterval(() => {
+    const auctionSection = document.getElementById('auction');
+    if (auctionSection && !auctionSection.classList.contains('hidden')) {
+      renderAuctionTimer();
+      // Only admin's browser drives automatic phase transitions to avoid race conditions
+      if (currentUser === 'Micole') checkPhaseTransition();
+    }
+  }, 1000);
+}
+
+function getPhaseElapsedSeconds() {
+  if (!state.liveAuction.phaseStartedAt) return 0;
+  return (Date.now() - new Date(state.liveAuction.phaseStartedAt).getTime()) / 1000;
+}
+
+async function checkPhaseTransition() {
+  const la = state.liveAuction;
+  if (la.status === 'bidding') {
+    if (getPhaseElapsedSeconds() >= BID_SECONDS) {
+      await closeBiddingPhase();
+    }
+  } else if (la.status === 'reveal') {
+    if (getPhaseElapsedSeconds() >= REVEAL_SECONDS) {
+      await advanceToNextMatch();
+    }
+  }
+}
+
+window.startLiveAuction = async function() {
+  if (!confirm('Start the live auction? This will open Match 1 for everyone right now!')) return;
+  state.liveAuction = { status:'bidding', matchIndex:0, phaseStartedAt:new Date().toISOString() };
+  await saveToFirebase({ liveAuction: state.liveAuction });
+  showToast('🔥 Auction started!','success');
+  renderAuction();
+};
+
+async function closeBiddingPhase() {
+  const la = state.liveAuction;
+  const match = r32Matches[la.matchIndex];
+  if (!match) return;
+
+  // Resolve both slot auctions for this match
+  [match.slotA, match.slotB].forEach(slotId => {
+    if (state.owners[slotId]) return; // already owned somehow
+    const bids = state.bids[slotId] || {};
+    const timestamps = (state.bidTimestamps && state.bidTimestamps[slotId]) || {};
+    // Highest bid wins; ties go to whoever locked their bid in first (fastest finger)
+    const entries = Object.entries(bids).sort(([userA,a],[userB,b]) => {
+      if (b !== a) return b - a;
+      return (timestamps[userA] || 0) - (timestamps[userB] || 0);
+    });
+    if (entries.length === 0) return;
+    const [winner, coins] = entries[0];
+    state.owners[slotId] = { username: winner, coins };
+    if (!state.collection[winner]) state.collection[winner] = [];
+    state.collection[winner].push({ slotId, how:'original' });
+  });
+
+  state.liveAuction = { ...la, status:'reveal', phaseStartedAt:new Date().toISOString() };
+  await saveToFirebase({ liveAuction: state.liveAuction, owners: state.owners, collection: state.collection });
+  renderAuction();
+}
+
+async function advanceToNextMatch() {
+  const la = state.liveAuction;
+  const nextIndex = la.matchIndex + 1;
+  if (nextIndex >= r32Matches.length) {
+    state.liveAuction = { ...la, status:'finished', phaseStartedAt:new Date().toISOString() };
+    await saveToFirebase({ liveAuction: state.liveAuction });
+    showToast('🏁 Live auction complete!','success');
+  } else {
+    state.liveAuction = { status:'bidding', matchIndex: nextIndex, phaseStartedAt:new Date().toISOString() };
+    await saveToFirebase({ liveAuction: state.liveAuction });
+  }
+  renderAuction();
+}
+
+// Admin manual override — skip to next phase early
+window.forceAdvance = async function() {
+  const la = state.liveAuction;
+  if (la.status === 'bidding') await closeBiddingPhase();
+  else if (la.status === 'reveal') await advanceToNextMatch();
+};
+
+// ============================================
+// RENDER LIVE AUCTION
+// ============================================
+function renderAuction() {
+  const container = document.getElementById('auction-container');
+  if (!container) return;
+  const la = state.liveAuction;
+  const isAdmin = currentUser === 'Micole';
+  const renderKey = `${la.status}-${la.matchIndex}`;
+
+  // If only bids changed (not phase/match), just refresh the phase content — avoids full DOM rebuild on every keystroke/bid from other players
+  if (renderKey === lastRenderedKey && (la.status === 'bidding' || la.status === 'reveal')) {
+    renderAuctionPhase();
+    return;
+  }
+  lastRenderedKey = renderKey;
+
+  if (la.status === 'not_started') {
+    container.innerHTML = `
+      <div class="live-waiting">
+        <div class="live-waiting-icon">⏳</div>
+        <div class="live-waiting-title">Waiting for the auction to start...</div>
+        <div class="live-waiting-sub">🪙 You have ${getCoinsRemaining(currentUser)} coins ready to bid</div>
+        ${isAdmin ? `<button class="cta-btn" style="margin-top:24px" onclick="startLiveAuction()">🔥 Start Live Auction</button>` : ''}
+      </div>`;
+    return;
+  }
+
+  if (la.status === 'finished') {
+    container.innerHTML = `
+      <div class="live-waiting">
+        <div class="live-waiting-icon">🏁</div>
+        <div class="live-waiting-title">Auction Complete!</div>
+        <div class="live-waiting-sub">Check My Squad to see your teams</div>
+      </div>`;
+    return;
+  }
+
+  const match = r32Matches[la.matchIndex];
+  const slotA = getSlot(match.slotA);
+  const slotB = getSlot(match.slotB);
+
+  container.innerHTML = `
+    <div class="live-progress">Match ${la.matchIndex + 1} of ${r32Matches.length}</div>
+    <div class="live-coins">🪙 ${getCoinsRemaining(currentUser)} coins available</div>
+    <div class="live-matchup">
+      <div class="live-team">
+        <div class="live-flag">${slotA?.flag}</div>
+        <div class="live-name">${slotA?.name}</div>
+        ${!slotA?.confirmed ? `<div class="live-placeholder">Either: ${slots.find(s=>s.id===match.slotA)?.placeholder}</div>` : ''}
+      </div>
+      <div class="live-vs">VS</div>
+      <div class="live-team">
+        <div class="live-flag">${slotB?.flag}</div>
+        <div class="live-name">${slotB?.name}</div>
+        ${!slotB?.confirmed ? `<div class="live-placeholder">Either: ${slots.find(s=>s.id===match.slotB)?.placeholder}</div>` : ''}
+      </div>
+    </div>
+    <div id="live-timer-zone"></div>
+    <div id="live-phase-zone"></div>
+    ${isAdmin ? `<button class="bid-remove-btn" style="margin:20px auto;display:block" onclick="forceAdvance()">⏭ Force Advance (admin)</button>` : ''}
+  `;
+
+  renderAuctionTimer();
+  renderAuctionPhase();
+}
+
+function renderAuctionTimer() {
+  const zone = document.getElementById('live-timer-zone');
+  if (!zone) return;
+  const la = state.liveAuction;
+  if (la.status !== 'bidding' && la.status !== 'reveal') return;
+
+  const total = la.status === 'bidding' ? BID_SECONDS : REVEAL_SECONDS;
+  const elapsed = getPhaseElapsedSeconds();
+  const remaining = Math.max(0, Math.ceil(total - elapsed));
+  const pct = Math.max(0, Math.min(100, (remaining/total)*100));
+
+  zone.innerHTML = `
+    <div class="live-timer-bar-wrap">
+      <div class="live-timer-bar" style="width:${pct}%; background:${la.status==='bidding'?'var(--gold)':'var(--teal)'}"></div>
+    </div>
+    <div class="live-timer-num">${remaining}s</div>`;
+}
+
+function renderAuctionPhase() {
+  const zone = document.getElementById('live-phase-zone');
+  if (!zone) return;
+  const la = state.liveAuction;
+  const match = r32Matches[la.matchIndex];
+
+  if (la.status === 'bidding') {
+    // Don't wipe out an in-progress typed bid if this re-render was triggered
+    // by someone else's bid landing via Firebase (only skip if I haven't already locked)
+    const myBidAExisting = (state.bids[match.slotA]||{})[currentUser];
+    const myBidBExisting = (state.bids[match.slotB]||{})[currentUser];
+    const inputA = document.getElementById(`live-bid-${match.slotA}`);
+    const inputB = document.getElementById(`live-bid-${match.slotB}`);
+    const userIsTyping = (inputA && document.activeElement === inputA) || (inputB && document.activeElement === inputB);
+    if (userIsTyping && myBidAExisting === undefined && myBidBExisting === undefined) {
+      return; // preserve their typing, nothing they need to see has changed yet
+    }
+    const coinsLeft = getCoinsRemaining(currentUser);
+    const myBidA = (state.bids[match.slotA]||{})[currentUser];
+    const myBidB = (state.bids[match.slotB]||{})[currentUser];
+    const slotA = getSlot(match.slotA);
+    const slotB = getSlot(match.slotB);
+    const hasBidOnEither = myBidA !== undefined || myBidB !== undefined;
+
+    function buildBidBox(slot, slotId, myBid, otherBid) {
+      if (myBid !== undefined) {
+        // This is the team they've locked in
+        return `<div class="live-bid-locked">✅ Bid locked: ${myBid} coins</div>
+                <button class="bid-remove-btn" style="margin-top:8px;width:100%" onclick="switchLiveBid('${slotId}')">↺ Switch team</button>`;
+      } else if (otherBid !== undefined) {
+        // They've bid on the OTHER team — this one is locked out
+        return `<div class="live-bid-disabled">🚫 You've already bid on the other team</div>`;
+      } else {
+        return `<div class="bid-row"><input type="number" min="0" max="${coinsLeft}" id="live-bid-${slotId}" class="bid-input" placeholder="0"/>
+                 <button class="bid-btn" onclick="lockLiveBid('${slotId}')">Lock 🔒</button></div>`;
+      }
+    }
+
+    zone.innerHTML = `
+      <div class="live-bid-title">🔒 Place your blind bid${hasBidOnEither ? ' — locked in!' : ''}</div>
+      <div class="live-bid-grid">
+        <div class="live-bid-box">
+          <div class="live-bid-team">${slotA?.flag} ${slotA?.name}</div>
+          ${buildBidBox(slotA, match.slotA, myBidA, myBidB)}
+        </div>
+        <div class="live-bid-box">
+          <div class="live-bid-team">${slotB?.flag} ${slotB?.name}</div>
+          ${buildBidBox(slotB, match.slotB, myBidB, myBidA)}
+        </div>
+      </div>
+      <div class="live-bid-hint">Bids are blind — nobody can see what you bid. You can only back ONE team per match — choose wisely!</div>`;
+  } else if (la.status === 'reveal') {
+    const slotA = getSlot(match.slotA);
+    const slotB = getSlot(match.slotB);
+    const ownerA = state.owners[match.slotA];
+    const ownerB = state.owners[match.slotB];
+    const myA = ownerA?.username === currentUser;
+    const myB = ownerB?.username === currentUser;
+    const myBidA = (state.bids[match.slotA]||{})[currentUser];
+    const myBidB = (state.bids[match.slotB]||{})[currentUser];
+
+    let resultHTML = '';
+    [
+      { slot: slotA, owner: ownerA, mine: myA, myBid: myBidA },
+      { slot: slotB, owner: ownerB, mine: myB, myBid: myBidB },
+    ].forEach(({ slot, owner, mine, myBid }) => {
+      if (mine) {
+        resultHTML += `<div class="live-result-row live-result-win">🎉 You won ${slot?.flag} ${slot?.name}! (${owner.coins} coins)</div>`;
+      } else if (myBid !== undefined) {
+        resultHTML += `<div class="live-result-row live-result-lose">❌ You lost ${slot?.flag} ${slot?.name}</div>`;
+      } else {
+        resultHTML += `<div class="live-result-row live-result-skip">⏭️ You didn't bid on ${slot?.flag} ${slot?.name}</div>`;
+      }
+    });
+
+    const nextMatch = r32Matches[la.matchIndex+1];
+    const nextHTML = nextMatch
+      ? (() => { const nA=getSlot(nextMatch.slotA), nB=getSlot(nextMatch.slotB);
+          return `<div class="live-next-preview">⏭️ Next up: ${nA?.flag} ${nA?.name} vs ${nB?.flag} ${nB?.name}</div>`; })()
+      : `<div class="live-next-preview">🏁 That was the last match!</div>`;
+
+    zone.innerHTML = `
+      <div class="live-reveal-title">Results</div>
+      ${resultHTML}
+      <div class="live-balance">🪙 ${getCoinsRemaining(currentUser)} coins remaining</div>
+      ${nextHTML}`;
+  }
+}
+
+window.lockLiveBid = async function(slotId) {
+  const input = document.getElementById(`live-bid-${slotId}`);
+  const amount = parseInt(input?.value);
+  if (isNaN(amount) || amount < 0) { showToast('Enter a valid bid (0 or more)!','error'); return; }
+
+  const match = r32Matches[state.liveAuction.matchIndex];
+  const otherSlot = match.slotA === slotId ? match.slotB : match.slotA;
+  const myOtherBid = (state.bids[otherSlot]||{})[currentUser];
+
+  // Enforce: can only back one team per match
+  if (myOtherBid !== undefined) {
+    showToast(`You've already bid on the other team! Switch first if you want to change.`,'error');
+    return;
+  }
+
+  const coinsAvailable = getCoinsRemaining(currentUser);
+  if (amount > coinsAvailable) { showToast(`Not enough coins! Only ${coinsAvailable} available.`,'error'); return; }
+
+  if (!state.bids[slotId]) state.bids[slotId] = {};
+  state.bids[slotId][currentUser] = amount;
+  if (!state.bidTimestamps) state.bidTimestamps = {};
+  if (!state.bidTimestamps[slotId]) state.bidTimestamps[slotId] = {};
+  state.bidTimestamps[slotId][currentUser] = Date.now();
+  await saveToFirebase({ bids: state.bids, bidTimestamps: state.bidTimestamps });
+  showToast(`Bid locked: ${amount} coins 🔒`,'success');
+  renderAuctionPhase();
+};
+
+// Clears your bid on one team so you can re-bid on the other instead — never lets you hold both
+window.switchLiveBid = async function(slotId) {
+  if (!confirm('Switch teams? Your current bid will be cleared so you can bid on the other team instead.')) return;
+  if (state.bids[slotId]) delete state.bids[slotId][currentUser];
+  if (state.bidTimestamps && state.bidTimestamps[slotId]) delete state.bidTimestamps[slotId][currentUser];
+  await saveToFirebase({ bids: state.bids, bidTimestamps: state.bidTimestamps });
+  showToast('Bid cleared — pick your team!', '');
+  renderAuctionPhase();
+};
+
+// ============================================
+// ADMIN: PLACEHOLDER OVERRIDES (pre-auction)
+// ============================================
+window.confirmSlotTeam = async function(slotId) {
+  const name = document.getElementById(`override-name-${slotId}`)?.value?.trim();
+  const flag = document.getElementById(`override-flag-${slotId}`)?.value?.trim() || '🏳️';
+  if (!name) { showToast('Enter the team name!','error'); return; }
+  if (!confirm(`Confirm this slot is ${flag} ${name}?`)) return;
+  if (!state.slotOverrides) state.slotOverrides = {};
+  state.slotOverrides[slotId] = { name, flag };
+  await saveToFirebase({ slotOverrides: state.slotOverrides });
+  showToast(`Slot updated to ${name}!`,'success');
+  renderAuction();
+};
+
+// ============================================
+// MY SQUAD
+// ============================================
+function renderMyPicks() {
+  const container = document.getElementById('mypicks-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const myCol = getCollection(currentUser);
+  const coinsSpent = getCoinsSpent(currentUser);
+
+  const summary = document.createElement('div');
+  summary.className = 'squad-summary';
+  summary.innerHTML = `
+    <div class="squad-stat"><div class="squad-stat-val">🪙 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
+    <div class="squad-stat"><div class="squad-stat-val">🪙 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">🏳️ ${myCol.length}</div><div class="squad-stat-lbl">total teams</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
+  container.appendChild(summary);
+
+  if (myCol.length === 0) {
+    container.innerHTML += `<div class="squad-empty"><div style="font-size:2.5rem;margin-bottom:12px">🏴‍☠️</div><div style="font-weight:600;margin-bottom:6px">No teams yet!</div><div style="color:var(--text2);font-size:.88rem">Wait for the live auction to start.</div></div>`;
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'squad-grid';
+  myCol.forEach(({ slotId, how }) => {
+    const slot = getSlot(slotId);
+    const isEliminated = Object.values(state.matchResults).some(r => r.loserSlot === slotId);
+    const card = document.createElement('div');
+    const squadCls = how === 'original' ? ' squad-original' : how === 'stolen' ? ' squad-stolen' : ' squad-collected';
+    card.className = 'squad-card' + (isEliminated ? ' squad-eliminated' : '') + squadCls;
+    const howLabel = how === 'original' ? '🟢 Bought' : how === 'stolen' ? '🟣 Stolen' : '🔵 Collected';
+    card.innerHTML = `
+      <div class="squad-flag">${slot?.flag||'🏳️'}</div>
+      <div class="squad-name">${slot?.name||slotId}</div>
+      <div class="squad-how">${howLabel}</div>
+      ${isEliminated ? '<div class="squad-status eliminated">❌ Eliminated</div>' : '<div class="squad-status active">✅ Still in</div>'}`;
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+// ============================================
+// RESULTS (admin)
+// ============================================
+function renderResults() {
+  const container = document.getElementById('results-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (state.liveAuction.status !== 'finished') {
+    container.innerHTML = `<div class="squad-empty"><div style="font-size:2.5rem;margin-bottom:12px">⏳</div><div style="font-weight:600">Auction still in progress</div><div style="color:var(--text2);font-size:.88rem;margin-top:6px">Results can be entered once the live auction finishes.</div></div>`;
+    return;
+  }
+
+  const title = document.createElement('div');
+  title.className = 'auction-section-title';
+  title.textContent = 'Round of 32 Results';
+  container.appendChild(title);
+
+  const grid = document.createElement('div');
+  grid.className = 'results-grid';
+
+  r32Matches.forEach(match => {
+    const slotA   = getSlot(match.slotA);
+    const slotB   = getSlot(match.slotB);
+    const result  = state.matchResults[match.id];
+
+    const card = document.createElement('div');
+    card.className = 'result-card';
+
+    if (result) {
+      const winner = getSlot(result.winnerSlot);
+      const loser  = getSlot(result.loserSlot);
+      card.innerHTML = `
+        <div class="result-done">
+          <div class="result-winner">✅ ${winner?.flag} ${winner?.name} won</div>
+          <div class="result-loser">❌ ${loser?.flag} ${loser?.name} eliminated</div>
+          <button class="bid-remove-btn" style="margin-top:8px" onclick="clearResult('${match.id}')">↩ Undo</button>
+        </div>`;
+    } else {
+      // Deliberately no owner names shown here — ownership stays secret until a result locks it in
+      card.innerHTML = `
+        <div class="result-teams">
+          <div class="result-team"><span>${slotA?.flag||'🏳️'} ${slotA?.name||'TBD'}</span></div>
+          <div class="result-vs">VS</div>
+          <div class="result-team"><span>${slotB?.flag||'🏳️'} ${slotB?.name||'TBD'}</span></div>
+        </div>
+        <div class="result-btns">
+          <button class="result-pick-btn" onclick="recordResult('${match.id}','${match.slotA}','${match.slotB}')">${slotA?.flag||'🏳️'} ${slotA?.name||'?'} won</button>
+          <button class="result-pick-btn" onclick="recordResult('${match.id}','${match.slotB}','${match.slotA}')">${slotB?.flag||'🏳️'} ${slotB?.name||'?'} won</button>
+        </div>`;
+    }
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+window.recordResult = async function(matchId, winnerSlot, loserSlot) {
+  const winner = getSlot(winnerSlot);
+  const loser  = getSlot(loserSlot);
+  if (!confirm(`${winner?.name} beat ${loser?.name}?`)) return;
+
+  state.matchResults[matchId] = { winnerSlot, loserSlot };
+  const winnerHolder = getCurrentHolder(winnerSlot);
+  const loserHolder  = getCurrentHolder(loserSlot);
+
+  if (!state.revealFeed) state.revealFeed = [];
+  const feedEntry = { matchId, ts: new Date().toISOString() };
+
+  if (winnerHolder && loserHolder && winnerHolder === loserHolder) {
+    state.collection[winnerHolder] = (state.collection[winnerHolder]||[]).filter(c => c.slotId !== loserSlot);
+    feedEntry.kind = 'neutral';
+    feedEntry.msg = `⚽ <strong>${winnerHolder}</strong> won an all-self matchup — ${winner?.name} beat their own ${loser?.name}. ${loser?.name} is eliminated.`;
+    showToast(`${winner?.name} beat your own ${loser?.name} — eliminated`,'');
+  } else if (winnerHolder) {
+    if (loserHolder) {
+      state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
+      if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
+      state.collection[winnerHolder].push({ slotId: loserSlot, how:'stolen' });
+      feedEntry.kind = 'steal';
+      feedEntry.msg = `🔥 <strong>${winnerHolder}'s ${winner?.name}</strong> stole <strong>${loser?.name}</strong> from <strong>${loserHolder}</strong>!`;
+      showToast(`${winnerHolder} stole ${loser?.name} from ${loserHolder}! 🔥`,'success');
+    } else {
+      if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
+      state.collection[winnerHolder].push({ slotId: loserSlot, how:'collected' });
+      feedEntry.kind = 'collect';
+      feedEntry.msg = `✅ <strong>${winnerHolder}'s ${winner?.name}</strong> collected unowned <strong>${loser?.name}</strong>!`;
+      showToast(`${winnerHolder} collected ${loser?.name}! ✅`,'success');
+    }
+  } else if (loserHolder) {
+    state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
+    feedEntry.kind = 'loss';
+    feedEntry.msg = `❌ Unowned ${winner?.name} eliminated <strong>${loserHolder}'s ${loser?.name}</strong> — team is gone, nobody gains it.`;
+    showToast(`${loser?.name} eliminated — ${loserHolder} loses their team`,'');
+  } else {
+    feedEntry.kind = 'neutral';
+    feedEntry.msg = `👻 ${winner?.name} beat ${loser?.name} — both unowned, nothing changes.`;
+  }
+
+  state.revealFeed.unshift(feedEntry);
+
+  await saveToFirebase({ matchResults: state.matchResults, collection: state.collection, revealFeed: state.revealFeed });
+  renderResults(); renderLeaderboard(); renderMyPicks();
+};
+
+window.clearResult = async function(matchId) {
+  if (!confirm('Undo this result? Collections will NOT be automatically reversed.')) return;
+  delete state.matchResults[matchId];
+  await saveToFirebase({ matchResults: state.matchResults });
+  showToast('Result undone.','');
+  renderResults();
+};
+
+// ============================================
+// LEADERBOARD
+// ============================================
+function renderLeaderboard() {
+  const container = document.getElementById('leaderboard-container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const hasResults = Object.keys(state.matchResults).length > 0;
+
+  // ===== REVEAL FEED — shown first, capped at 3, expandable =====
+  if (state.revealFeed && state.revealFeed.length > 0) {
+    const feedTitle = document.createElement('div');
+    feedTitle.className = 'auction-section-title';
+    feedTitle.textContent = '📣 Reveal Feed';
+    container.appendChild(feedTitle);
+
+    const feedWrap = document.createElement('div');
+    feedWrap.className = 'reveal-feed';
+    feedWrap.id = 'reveal-feed-wrap';
+    container.appendChild(feedWrap);
+
+    renderRevealFeedItems(feedWrap, false);
+
+    if (state.revealFeed.length > 3) {
+      const expandBtn = document.createElement('button');
+      expandBtn.className = 'reveal-feed-expand-btn';
+      expandBtn.id = 'reveal-feed-expand-btn';
+      expandBtn.textContent = `Show all ${state.revealFeed.length} updates ▾`;
+      expandBtn.onclick = () => toggleRevealFeed(feedWrap, expandBtn);
+      container.appendChild(expandBtn);
+    }
+
+    const divider = document.createElement('div');
+    divider.style.cssText = 'height:1px;background:var(--border);margin:28px 0;';
+    container.appendChild(divider);
+  }
+
+  if (!hasResults) {
+    // Before any World Cup results — total secrecy, just show everyone at 0
+    const intro = document.createElement('div');
+    intro.className = 'leaderboard-empty';
+    intro.innerHTML = '🤫 Ownership is secret! The leaderboard activates once real match results are entered — that\'s when steals get revealed.';
+    container.appendChild(intro);
+
+    PLAYERS.forEach((player, i) => {
+      const row = document.createElement('div');
+      row.className = 'leaderboard-row';
+      row.innerHTML = `
+        <div class="lb-position">${i+1}</div>
+        <div class="lb-info">
+          <div class="lb-name">${player.icon} ${player.name}</div>
+          <div class="lb-type">Ownership hidden until matches are played</div>
+        </div>
+        <div>
+          <div class="lb-points" style="color:var(--text3)">?</div>
+          <div class="lb-pts-label">TEAMS</div>
+        </div>`;
+      container.appendChild(row);
+    });
+    return;
+  }
+
+  // Results exist — show REVEALED teams only, NOT true totals.
+  // A team's ownership becomes known the moment it plays a match (whether it won or lost) —
+  // because the reveal feed names the owner either as the thief or the victim.
+  // Teams that haven't played yet stay completely invisible, even though they still
+  // count toward that player's real total behind the scenes.
+  const revealedSlotIds = new Set();
+  Object.values(state.matchResults).forEach(r => {
+    revealedSlotIds.add(r.winnerSlot);
+    revealedSlotIds.add(r.loserSlot);
+  });
+
+  const revealedData = PLAYERS.map(p => {
+    const col = getCollection(p.name);
+    const knownTeams = col.filter(c => revealedSlotIds.has(c.slotId));
+    return { ...p, known: knownTeams.length, knownTeams };
+  }).sort((a,b) => b.known - a.known);
+
+  const lbTitle = document.createElement('div');
+  lbTitle.className = 'auction-section-title';
+  lbTitle.textContent = '🏆 Standings';
+  container.appendChild(lbTitle);
+
+  const medals  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+  const classes = ['first','second','third','',''];
+
+  revealedData.forEach((player, i) => {
+    const row = document.createElement('div');
+    row.className = `leaderboard-row ${classes[i]||''}`;
+
+    const isElim = (slotId) => Object.values(state.matchResults).some(r => r.loserSlot === slotId);
+
+    const ownedBadges = player.knownTeams.filter(t => t.how === 'original').map(({ slotId }) => {
+      const slot = getSlot(slotId);
+      return `<span class="team-badge team-badge-green" style="${isElim(slotId)?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
+    }).join('');
+
+    const stolenBadges = player.knownTeams.filter(t => t.how === 'stolen').map(({ slotId }) => {
+      const slot = getSlot(slotId);
+      return `<span class="team-badge team-badge-purple" style="${isElim(slotId)?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
+    }).join('');
+
+    const collectedBadges = player.knownTeams.filter(t => t.how === 'collected').map(({ slotId }) => {
+      const slot = getSlot(slotId);
+      return `<span class="team-badge team-badge-blue" style="${isElim(slotId)?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
+    }).join('');
+
+    row.innerHTML = `
+      <div class="lb-position">${medals[i]}</div>
+      <div class="lb-info">
+        <div class="lb-name">${player.icon} ${player.name}</div>
+        <div class="lb-type">could have more in secret 🤫</div>
+        ${ownedBadges ? `<div class="lb-teams"><span class="lb-teams-label">🟢 Owned:</span>${ownedBadges}</div>` : ''}
+        ${stolenBadges ? `<div class="lb-teams"><span class="lb-teams-label">🟣 Stolen:</span>${stolenBadges}</div>` : ''}
+        ${collectedBadges ? `<div class="lb-teams"><span class="lb-teams-label">🔵 Collected:</span>${collectedBadges}</div>` : ''}
+      </div>
+      <div>
+        <div class="lb-points" style="color:var(--gold)">${player.known}</div>
+        <div class="lb-pts-label">KNOWN</div>
+      </div>`;
+    container.appendChild(row);
+  });
+}
+
+// Renders feed items into a wrap element, either capped to 3 (latest first) or all
+function renderRevealFeedItems(wrap, showAll) {
+  wrap.innerHTML = '';
+  const items = showAll ? state.revealFeed : state.revealFeed.slice(0, 3);
+  items.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = `reveal-feed-item reveal-feed-${entry.kind || 'neutral'}`;
+    const ts = new Date(entry.ts);
+    const timeStr = ts.toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) + ' · ' + ts.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+    item.innerHTML = `<div class="reveal-feed-msg">${entry.msg}</div><div class="reveal-feed-time">${timeStr}</div>`;
+    wrap.appendChild(item);
+  });
+}
+
+function toggleRevealFeed(wrap, btn) {
+  const isExpanded = btn.dataset.expanded === 'true';
+  renderRevealFeedItems(wrap, !isExpanded);
+  btn.dataset.expanded = (!isExpanded).toString();
+  btn.textContent = !isExpanded ? 'Show less ▴' : `Show all ${state.revealFeed.length} updates ▾`;
+}
+
+// ============================================
+// TRIAL RUN — self-contained sandbox, no Firebase, replayable
+// ============================================
+const TRIAL_BOT_NAMES = ['Bot Mom', 'Bot Zac', 'Bot Sean', 'Bot Patricia'];
+const TRIAL_MATCHES = [
+  { id:'t1', teamA:{ name:'Brazil', flag:'🇧🇷' },     teamB:{ name:'Croatia', flag:'🇭🇷' } },
+  { id:'t2', teamA:{ name:'Argentina', flag:'🇦🇷' },   teamB:{ name:'Japan', flag:'🇯🇵' } },
+  { id:'t3', teamA:{ name:'Portugal', flag:'🇵🇹' },    teamB:{ name:'Senegal', flag:'🇸🇳' } },
+];
+const TRIAL_BID_SECONDS    = 20;
+const TRIAL_REVEAL_SECONDS = 10;
+
+let trial = null; // { coins, matchIndex, phase, phaseStartedAt, bids:{teamA,teamB or null}, myBid:{slot,amount}|null, owners:{}, history:[] }
+let trialTickInterval = null;
+
+function initTrial() {
+  // Re-visiting mid-run (e.g. switching to My Squad and back) should NOT reset progress.
+  if (trial) { renderTrial(); return; }
+  renderTrialLanding();
+}
+
+function renderTrialLanding() {
+  const container = document.getElementById('trial-container');
+  if (!container) return;
+  if (trialTickInterval) clearInterval(trialTickInterval);
+  container.innerHTML = `
+    <div class="live-waiting">
+      <div class="live-waiting-icon">🎮</div>
+      <div class="live-waiting-title">Ready to practice?</div>
+      <div class="live-waiting-sub" style="max-width:420px;margin:0 auto">3 sample matches, 100 practice coins, 4 simulated bidders. Replay as many times as you like — nothing here counts toward the real game.</div>
+      <div class="trial-disclaimer">⚠️ On the real auction day, the live auction will only be started by the admin (Micole) — not by each player individually.</div>
+      <button class="cta-btn" style="margin-top:20px" onclick="startTrial()">▶ Start Practice Run</button>
+    </div>`;
+}
+
+function startTrial() {
+  if (trialTickInterval) clearInterval(trialTickInterval);
+  trial = {
+    coins: 100,
+    matchIndex: 0,
+    phase: 'bidding', // 'bidding' | 'reveal' | 'finished'
+    phaseStartedAt: Date.now(),
+    myBid: null, // { slot: 'A'|'B', amount }
+    botBids: {}, // generated fresh each match: { A: {name,amount}[], B: {name,amount}[] }
+    owners: [], // [{ matchId, slot, team, who }] who = 'me' or bot name or null
+    history: [], // result strings for the trial summary
+  };
+  generateTrialBotBids();
+  trialTickInterval = setInterval(trialTick, 1000);
+  renderTrial();
+}
+window.startTrial = startTrial;
+
+function generateTrialBotBids() {
+  // Each bot randomly decides to bid on A, B, both(never — same rule applies conceptually), or neither
+  const match = TRIAL_MATCHES[trial.matchIndex];
+  trial.botBids = { A: [], B: [] };
+  TRIAL_BOT_NAMES.forEach(name => {
+    const willBid = Math.random() < 0.75; // most bots bid on something
+    if (!willBid) return;
+    const side = Math.random() < 0.5 ? 'A' : 'B';
+    const amount = Math.floor(Math.random() * 35) + 5; // 5-40 coin range, feels realistic
+    trial.botBids[side].push({ name, amount });
+  });
+}
+
+function trialTick() {
+  const trialSection = document.getElementById('trial');
+  if (!trialSection || trialSection.classList.contains('hidden')) return;
+  if (!trial || trial.phase === 'finished' || trial.phase === 'not_started') return;
+
+  renderTrialTimer();
+  const total = trial.phase === 'bidding' ? TRIAL_BID_SECONDS : TRIAL_REVEAL_SECONDS;
+  const elapsed = (Date.now() - trial.phaseStartedAt) / 1000;
+  if (elapsed >= total) {
+    if (trial.phase === 'bidding') closeTrialBidding();
+    else advanceTrialMatch();
+  }
+}
+
+function closeTrialBidding() {
+  const match = TRIAL_MATCHES[trial.matchIndex];
+  ['A','B'].forEach(slot => {
+    const allBids = [...trial.botBids[slot]];
+    if (trial.myBid && trial.myBid.slot === slot) allBids.push({ name:'me', amount: trial.myBid.amount });
+    if (allBids.length === 0) { trial.owners.push({ matchId: match.id, slot, team: match[`team${slot}`], who: null }); return; }
+    allBids.sort((a,b) => b.amount - a.amount);
+    const winner = allBids[0];
+    if (winner.name === 'me') trial.coins -= winner.amount;
+    trial.owners.push({ matchId: match.id, slot, team: match[`team${slot}`], who: winner.name, amount: winner.amount });
+  });
+  trial.phase = 'reveal';
+  trial.phaseStartedAt = Date.now();
+  renderTrial();
+}
+
+function advanceTrialMatch() {
+  const nextIndex = trial.matchIndex + 1;
+  if (nextIndex >= TRIAL_MATCHES.length) {
+    trial.phase = 'finished';
+    renderTrial();
+    return;
+  }
+  trial.matchIndex = nextIndex;
+  trial.phase = 'bidding';
+  trial.phaseStartedAt = Date.now();
+  trial.myBid = null;
+  generateTrialBotBids();
+  renderTrial();
+}
+
+window.lockTrialBid = function(slot) {
+  const input = document.getElementById(`trial-bid-${slot}`);
+  const amount = parseInt(input?.value);
+  if (isNaN(amount) || amount < 0) { showToast('Enter a valid bid (0 or more)!','error'); return; }
+  if (amount > trial.coins) { showToast(`Not enough coins! Only ${trial.coins} available.`,'error'); return; }
+  trial.myBid = { slot, amount };
+  showToast(`Practice bid locked: ${amount} coins 🔒`,'success');
+  renderTrialPhase();
+};
+
+window.switchTrialBid = function() {
+  trial.myBid = null;
+  showToast('Bid cleared — pick your team!', '');
+  renderTrialPhase();
+};
+
+function renderTrial() {
+  const container = document.getElementById('trial-container');
+  if (!container) return;
+
+  if (trial.phase === 'finished') {
+    const myTeams = trial.owners.filter(o => o.who === 'me');
+    container.innerHTML = `
+      <div class="live-waiting">
+        <div class="live-waiting-icon">🏁</div>
+        <div class="live-waiting-title">Trial Complete!</div>
+        <div class="live-waiting-sub">You ended up with ${myTeams.length} team${myTeams.length === 1 ? '' : 's'} and ${trial.coins} coins left</div>
+        ${myTeams.length > 0 ? `<div class="trial-summary-teams">${myTeams.map(t => `<span class="team-badge team-badge-green">${t.team.flag} ${t.team.name}</span>`).join('')}</div>` : ''}
+        <button class="cta-btn" style="margin-top:24px" onclick="startTrial()">🔁 Replay Trial</button>
+      </div>`;
+    return;
+  }
+
+  const match = TRIAL_MATCHES[trial.matchIndex];
+  container.innerHTML = `
+    <div class="live-progress">Practice Match ${trial.matchIndex + 1} of ${TRIAL_MATCHES.length}</div>
+    <div class="live-coins">🪙 ${trial.coins} coins available</div>
+    <div class="live-matchup">
+      <div class="live-team"><div class="live-flag">${match.teamA.flag}</div><div class="live-name">${match.teamA.name}</div></div>
+      <div class="live-vs">VS</div>
+      <div class="live-team"><div class="live-flag">${match.teamB.flag}</div><div class="live-name">${match.teamB.name}</div></div>
+    </div>
+    <div id="trial-timer-zone"></div>
+    <div id="trial-phase-zone"></div>
+    <button class="bid-remove-btn" style="margin:20px auto;display:block" onclick="forceAdvanceTrial()">⏭ Skip ahead (practice only)</button>
+  `;
+  renderTrialTimer();
+  renderTrialPhase();
+}
+
+window.forceAdvanceTrial = function() {
+  if (trial.phase === 'bidding') closeTrialBidding();
+  else advanceTrialMatch();
+};
+
+function renderTrialTimer() {
+  const zone = document.getElementById('trial-timer-zone');
+  if (!zone || !trial) return;
+  const total = trial.phase === 'bidding' ? TRIAL_BID_SECONDS : TRIAL_REVEAL_SECONDS;
+  const elapsed = (Date.now() - trial.phaseStartedAt) / 1000;
+  const remaining = Math.max(0, Math.ceil(total - elapsed));
+  const pct = Math.max(0, Math.min(100, (remaining/total)*100));
+  zone.innerHTML = `
+    <div class="live-timer-bar-wrap"><div class="live-timer-bar" style="width:${pct}%; background:${trial.phase==='bidding'?'var(--gold)':'var(--teal)'}"></div></div>
+    <div class="live-timer-num">${remaining}s</div>`;
+}
+
+function renderTrialPhase() {
+  const zone = document.getElementById('trial-phase-zone');
+  if (!zone || !trial) return;
+  const match = TRIAL_MATCHES[trial.matchIndex];
+
+  if (trial.phase === 'bidding') {
+    const inputA = document.getElementById('trial-bid-A');
+    const inputB = document.getElementById('trial-bid-B');
+    const userIsTyping = (inputA && document.activeElement === inputA) || (inputB && document.activeElement === inputB);
+    if (userIsTyping && !trial.myBid) return;
+
+    function box(slot, team) {
+      if (trial.myBid && trial.myBid.slot === slot) {
+        return `<div class="live-bid-locked">✅ Bid locked: ${trial.myBid.amount} coins</div>
+                <button class="bid-remove-btn" style="margin-top:8px;width:100%" onclick="switchTrialBid()">↺ Switch team</button>`;
+      } else if (trial.myBid && trial.myBid.slot !== slot) {
+        return `<div class="live-bid-disabled">🚫 You've already bid on the other team</div>`;
+      } else {
+        return `<div class="bid-row"><input type="number" min="0" max="${trial.coins}" id="trial-bid-${slot}" class="bid-input" placeholder="0"/>
+                 <button class="bid-btn" onclick="lockTrialBid('${slot}')">Lock 🔒</button></div>`;
+      }
+    }
+
+    zone.innerHTML = `
+      <div class="live-bid-title">🔒 Place your practice bid${trial.myBid ? ' — locked in!' : ''}</div>
+      <div class="live-bid-grid">
+        <div class="live-bid-box"><div class="live-bid-team">${match.teamA.flag} ${match.teamA.name}</div>${box('A', match.teamA)}</div>
+        <div class="live-bid-box"><div class="live-bid-team">${match.teamB.flag} ${match.teamB.name}</div>${box('B', match.teamB)}</div>
+      </div>
+      <div class="live-bid-hint">This is practice — bids are blind here too, against 4 simulated bidders. You can only back ONE team per match.</div>`;
+  } else if (trial.phase === 'reveal') {
+    const resultsForMatch = trial.owners.filter(o => o.matchId === match.id);
+    let resultHTML = '';
+    resultsForMatch.forEach(({ slot, team, who, amount }) => {
+      if (who === 'me') {
+        resultHTML += `<div class="live-result-row live-result-win">🎉 You won ${team.flag} ${team.name}! (${amount} coins)</div>`;
+      } else if (trial.myBid && trial.myBid.slot === slot) {
+        resultHTML += `<div class="live-result-row live-result-lose">❌ You lost ${team.flag} ${team.name}</div>`;
+      } else {
+        resultHTML += `<div class="live-result-row live-result-skip">⏭️ You didn't bid on ${team.flag} ${team.name}</div>`;
+      }
+    });
+    const nextMatch = TRIAL_MATCHES[trial.matchIndex+1];
+    const nextHTML = nextMatch
+      ? `<div class="live-next-preview">⏭️ Next up: ${nextMatch.teamA.flag} ${nextMatch.teamA.name} vs ${nextMatch.teamB.flag} ${nextMatch.teamB.name}</div>`
+      : `<div class="live-next-preview">🏁 That was the last practice match!</div>`;
+    zone.innerHTML = `
+      <div class="live-reveal-title">Results</div>
+      ${resultHTML}
+      <div class="live-balance">🪙 ${trial.coins} coins remaining</div>
+      ${nextHTML}`;
+  }
+}
+
+
+function renderRules() {
+  const container = document.getElementById('rules-container');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="rules-block">
+      <h3>⚡ The Basics</h3>
+      <p>It's a live, blind auction for World Cup teams. Everyone starts with <strong>100 coins</strong>. Win teams, watch them play, steal from anyone they knock out. Most teams at the end wins.</p>
+    </div>
+    <div class="rules-block">
+      <h3>🔒 How Bidding Works</h3>
+      <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both) — nobody can see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+      <p>${REVEAL_SECONDS} seconds later you see your own result, then it's straight on to the next match — all 16 in about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
+    </div>
+    <div class="rules-block">
+      <h3>🤫 It's a Secret</h3>
+      <p>You only ever see your own outcome. Ownership stays hidden until that team actually plays in the real World Cup — that's when the reveal happens.</p>
+    </div>
+    <div class="rules-block">
+      <h3>🔥 What Happens When Teams Play</h3>
+      <div class="rules-scoring">
+        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Beat someone's owned team → you take it</div>
+        <div class="rules-score-row"><span class="score-badge gold">Collect</span> Beat an unowned team → it's yours</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Lose to an unowned team → gone, nobody gains it</div>
+      </div>
+    </div>
+    <div class="rules-block">
+      <h3>📈 Strategy</h3>
+      <p>More teams = more chances to steal and climb the leaderboard. Don't blow your whole budget on one team — spread it out.</p>
+    </div>
+    <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
+      <h3>🎮 Try It First</h3>
+      <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like — nothing there counts.</p>
+    </div>`;
+}
+
+// ============================================
+// LOADING, TOAST, RESET
+// ============================================
+function showLoading(show) {
+  let overlay = document.getElementById('loading-overlay');
+  if (show && !overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'loading-overlay';
+    overlay.className = 'loading-overlay';
+    overlay.innerHTML = `<div class="loading-spinner"></div><div class="loading-text">Loading...</div>`;
+    document.body.appendChild(overlay);
+  } else if (!show && overlay) {
+    overlay.remove();
+  }
+}
+
+function showToast(msg, type='') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = `toast ${type}`;
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+async function resetEverything() {
+  if (!confirm('⚠️ RESET ALL AUCTION DATA?')) return;
+  if (!confirm('100% sure?')) return;
+  showLoading(true);
+  const fresh = {
+    liveAuction: { status:'not_started', matchIndex:0, phaseStartedAt:null },
+    bids:{}, bidTimestamps:{}, owners:{}, collection:{}, matchResults:{}, slotOverrides:{}, revealFeed:[]
+  };
+  await setDoc(doc(db,'worldcup2026_r32','shared'), fresh);
+  state = fresh;
+  showLoading(false);
+  showToast('🗑️ All data reset!','success');
+  renderAuction(); renderMyPicks(); renderLeaderboard(); updateHeader();
+}
+window.resetEverything = resetEverything;
