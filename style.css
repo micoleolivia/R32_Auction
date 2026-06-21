@@ -222,3 +222,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 .reveal-feed-msg strong{color:var(--text);font-weight:700}
 .reveal-feed-expand-btn{display:block;margin:4px auto 0;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:.78rem;font-weight:600;padding:8px 18px;border-radius:100px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
 .reveal-feed-expand-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* LIVE BID — ONE TEAM PER MATCH */
+.live-bid-disabled{font-size:.78rem;color:var(--text3);background:var(--bg2);border:1px dashed var(--border);padding:10px;border-radius:8px;text-align:center}
