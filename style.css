@@ -206,3 +206,9 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 .reveal-feed-item{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
 .reveal-feed-msg{font-size:.85rem;color:var(--text);line-height:1.5}
 .reveal-feed-time{font-size:.68rem;color:var(--text3);margin-top:6px}
+
+/* LEADERBOARD TEAM ROWS BY TYPE */
+.team-badge-blue{border-color:rgba(59,130,246,.4)!important;color:var(--blue)!important}
+.lb-teams{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.lb-teams-label{font-size:.68rem;color:var(--text3);font-weight:600;margin-right:2px}
+.squad-collected{border-color:var(--blue)!important}
