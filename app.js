@@ -841,7 +841,7 @@ function renderLeaderboard() {
     // Before any World Cup results — total secrecy, just show everyone at 0
     const intro = document.createElement('div');
     intro.className = 'leaderboard-empty';
-    intro.innerHTML = '🤫 Ownership is secret! The leaderboard activates once real match results are entered — that\'s when steals get revealed.';
+    intro.innerHTML = '🤫 Ownership is secret! The leaderboard activates once real match results are entered, that\'s when steals/collections are revealed.';
     container.appendChild(intro);
 
     PLAYERS.forEach((player, i) => {
