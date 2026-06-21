@@ -231,3 +231,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 
 /* TRIAL DISCLAIMER */
 .trial-disclaimer{max-width:420px;margin:18px auto 0;padding:12px 16px;background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.3);border-radius:var(--radius);font-size:.78rem;color:var(--gold);line-height:1.5}
+
+/* COUNTDOWN */
+.countdown-number{font-family:'Bebas Neue',sans-serif;font-size:6rem;line-height:1;color:var(--gold);margin-top:24px;text-shadow:0 0 40px rgba(245,197,24,.4);animation:countdownPulse 1s ease infinite}
+@keyframes countdownPulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
