@@ -212,3 +212,13 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 .lb-teams{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
 .lb-teams-label{font-size:.68rem;color:var(--text3);font-weight:600;margin-right:2px}
 .squad-collected{border-color:var(--blue)!important}
+
+/* REVEAL FEED v2 */
+.reveal-feed-item{border-left:3px solid var(--border)}
+.reveal-feed-steal{border-left-color:var(--bet)}
+.reveal-feed-collect{border-left-color:var(--blue)}
+.reveal-feed-loss{border-left-color:var(--text3)}
+.reveal-feed-neutral{border-left-color:var(--text3)}
+.reveal-feed-msg strong{color:var(--text);font-weight:700}
+.reveal-feed-expand-btn{display:block;margin:4px auto 0;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:.78rem;font-weight:600;padding:8px 18px;border-radius:100px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.reveal-feed-expand-btn:hover{border-color:var(--gold);color:var(--gold)}
