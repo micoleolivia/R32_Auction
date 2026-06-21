@@ -1156,15 +1156,15 @@ function renderRules() {
       <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
     </div>
     <div class="rules-block">
-      <h3>🔒 How Bidding Works</h3>
+      <h3>How Bidding Works</h3>
       <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
       <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
-      <p>${REVEAL_SECONDS} seconds later you see your own result — either a congratulatory message or a "sorry, you lost" message — then it's straight on to the next match.</p>
-      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens — who stole what from who.</p>
+      <p>${REVEAL_SECONDS} seconds later you see your own result — either a congratulatory message or a "sorry, you lost" message, then it's straight on to the next match.</p>
+      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from who).</p>
       <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
     </div>
     <div class="rules-block">
-      <h3>🔥 How to Get More Teams After the Auction</h3>
+      <h3>How to Get More Teams After the Auction</h3>
       <div class="rules-scoring">
         <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their losing team</div>
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
@@ -1173,11 +1173,11 @@ function renderRules() {
       </div>
     </div>
     <div class="rules-block">
-      <h3>💡 A Little Hint</h3>
-      <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team — spread it out, or don't, and accept that you're limiting your own chances of climbing the leaderboard.</p>
+      <h3>💡 A Little Hint 💡</h3>
+      <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team, spread it out, or don't and accept that you're limiting your own chances of climbing the leaderboard.</p>
     </div>
     <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
-      <h3>🎮 Want a Trial Run?</h3>
+      <h3>Want a Trial Run?</h3>
       <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like. Nothing there counts.</p>
     </div>`;
 }
