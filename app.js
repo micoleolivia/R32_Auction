@@ -29,7 +29,7 @@ const PLAYERS = [
 ];
 
 const STARTING_COINS = 100;
-const BID_SECONDS     = 15;  // blind bid window
+const BID_SECONDS     = 25;  // blind bid window
 const REVEAL_SECONDS  = 15;  // result + next match preview window
 
 // ============================================
@@ -106,10 +106,12 @@ let state = {
   collection:   {},  // collection[username] = [{ slotId, how:'original'|'stolen'|'collected' }]
   matchResults: {},  // matchResults[matchId] = { winnerSlot, loserSlot }
   slotOverrides:{},  // slotOverrides[slotId] = { name, flag }
+  revealFeed:   [],  // [{ matchId, ts, msg }] — public feed of what's been revealed so far
 };
 
 let unsubscribe = null;
 let tickInterval = null;
+let lastRenderedKey = null;  // tracks matchIndex+status to avoid redundant full re-renders
 
 // ============================================
 // FIREBASE
@@ -138,6 +140,7 @@ function startLiveListener() {
       state.collection    = d.collection    || {};
       state.matchResults  = d.matchResults  || {};
       state.slotOverrides = d.slotOverrides || {};
+      state.revealFeed    = d.revealFeed    || [];
       refreshAll();
     }
   });
@@ -206,6 +209,7 @@ async function login(name) {
   state.collection    = d.collection    || {};
   state.matchResults  = d.matchResults  || {};
   state.slotOverrides = d.slotOverrides || {};
+  state.revealFeed    = d.revealFeed    || [];
 
   currentUser = name;
   const isAdmin = name === 'Micole';
@@ -261,12 +265,13 @@ window.showSection = showSection;
 function startTicker() {
   if (tickInterval) clearInterval(tickInterval);
   tickInterval = setInterval(() => {
-    if (!document.getElementById('auction').classList.contains('hidden')) {
+    const auctionSection = document.getElementById('auction');
+    if (auctionSection && !auctionSection.classList.contains('hidden')) {
       renderAuctionTimer();
       // Only admin's browser drives automatic phase transitions to avoid race conditions
       if (currentUser === 'Micole') checkPhaseTransition();
     }
-  }, 500);
+  }, 1000);
 }
 
 function getPhaseElapsedSeconds() {
@@ -346,6 +351,14 @@ function renderAuction() {
   if (!container) return;
   const la = state.liveAuction;
   const isAdmin = currentUser === 'Micole';
+  const renderKey = `${la.status}-${la.matchIndex}`;
+
+  // If only bids changed (not phase/match), just refresh the phase content — avoids full DOM rebuild on every keystroke/bid from other players
+  if (renderKey === lastRenderedKey && (la.status === 'bidding' || la.status === 'reveal')) {
+    renderAuctionPhase();
+    return;
+  }
+  lastRenderedKey = renderKey;
 
   if (la.status === 'not_started') {
     container.innerHTML = `
@@ -422,6 +435,16 @@ function renderAuctionPhase() {
   const match = r32Matches[la.matchIndex];
 
   if (la.status === 'bidding') {
+    // Don't wipe out an in-progress typed bid if this re-render was triggered
+    // by someone else's bid landing via Firebase (only skip if I haven't already locked)
+    const myBidAExisting = (state.bids[match.slotA]||{})[currentUser];
+    const myBidBExisting = (state.bids[match.slotB]||{})[currentUser];
+    const inputA = document.getElementById(`live-bid-${match.slotA}`);
+    const inputB = document.getElementById(`live-bid-${match.slotB}`);
+    const userIsTyping = (inputA && document.activeElement === inputA) || (inputB && document.activeElement === inputB);
+    if (userIsTyping && myBidAExisting === undefined && myBidBExisting === undefined) {
+      return; // preserve their typing, nothing they need to see has changed yet
+    }
     const coinsLeft = getCoinsRemaining(currentUser);
     const myBidA = (state.bids[match.slotA]||{})[currentUser];
     const myBidB = (state.bids[match.slotB]||{})[currentUser];
@@ -636,26 +659,37 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
   const winnerHolder = getCurrentHolder(winnerSlot);
   const loserHolder  = getCurrentHolder(loserSlot);
 
+  if (!state.revealFeed) state.revealFeed = [];
+  const feedEntry = { matchId, ts: new Date().toISOString() };
+
   if (winnerHolder && loserHolder && winnerHolder === loserHolder) {
     state.collection[winnerHolder] = (state.collection[winnerHolder]||[]).filter(c => c.slotId !== loserSlot);
+    feedEntry.msg = `⚽ ${winner?.flag} ${winner?.name} beat ${loser?.flag} ${loser?.name} — both were ${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}'s own teams! ${loser?.name} is eliminated.`;
     showToast(`${winner?.name} beat your own ${loser?.name} — eliminated`,'');
   } else if (winnerHolder) {
     if (loserHolder) {
       state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
       if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
       state.collection[winnerHolder].push({ slotId: loserSlot, how:'stolen' });
+      feedEntry.msg = `🔥 ${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name} beat ${PLAYERS.find(p=>p.name===loserHolder)?.icon} ${loserHolder}'s ${loser?.flag} ${loser?.name} — ${winnerHolder} steals the team!`;
       showToast(`${winnerHolder} stole ${loser?.name} from ${loserHolder}! 🔥`,'success');
     } else {
       if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
       state.collection[winnerHolder].push({ slotId: loserSlot, how:'collected' });
+      feedEntry.msg = `✅ ${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name} beat unowned ${loser?.flag} ${loser?.name} — collected!`;
       showToast(`${winnerHolder} collected ${loser?.name}! ✅`,'success');
     }
   } else if (loserHolder) {
     state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
+    feedEntry.msg = `❌ Unowned ${winner?.flag} ${winner?.name} beat ${PLAYERS.find(p=>p.name===loserHolder)?.icon} ${loserHolder}'s ${loser?.flag} ${loser?.name} — team is gone, nobody gains it.`;
     showToast(`${loser?.name} eliminated — ${loserHolder} loses their team`,'');
+  } else {
+    feedEntry.msg = `👻 ${winner?.flag} ${winner?.name} beat ${loser?.flag} ${loser?.name} — both unowned, nothing changes.`;
   }
 
-  await saveToFirebase({ matchResults: state.matchResults, collection: state.collection });
+  state.revealFeed.unshift(feedEntry);
+
+  await saveToFirebase({ matchResults: state.matchResults, collection: state.collection, revealFeed: state.revealFeed });
   renderResults(); renderLeaderboard(); renderMyPicks();
 };
 
@@ -675,12 +709,37 @@ function renderLeaderboard() {
   if (!container) return;
   container.innerHTML = '';
 
+  const hasResults = Object.keys(state.matchResults).length > 0;
+
+  if (!hasResults) {
+    // Before any World Cup results — total secrecy, just show everyone at 0
+    const intro = document.createElement('div');
+    intro.className = 'leaderboard-empty';
+    intro.innerHTML = '🤫 Ownership is secret! The leaderboard activates once real match results are entered — that\'s when steals get revealed.';
+    container.appendChild(intro);
+
+    PLAYERS.forEach((player, i) => {
+      const row = document.createElement('div');
+      row.className = 'leaderboard-row';
+      row.innerHTML = `
+        <div class="lb-position">${i+1}</div>
+        <div class="lb-info">
+          <div class="lb-name">${player.icon} ${player.name}</div>
+          <div class="lb-type">Ownership hidden until matches are played</div>
+        </div>
+        <div>
+          <div class="lb-points" style="color:var(--text3)">?</div>
+          <div class="lb-pts-label">TEAMS</div>
+        </div>`;
+      container.appendChild(row);
+    });
+    return;
+  }
+
+  // Results exist — show counts only (still no team names on the leaderboard itself)
   const scored = PLAYERS.map(p => ({
     ...p,
-    total:    getTotalTeams(p.name),
-    original: getCollection(p.name).filter(c=>c.how==='original').length,
-    stolen:   getCollection(p.name).filter(c=>c.how==='stolen'||c.how==='collected').length,
-    col:      getCollection(p.name),
+    total: getTotalTeams(p.name),
   })).sort((a,b) => b.total - a.total);
 
   const medals  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
@@ -689,19 +748,10 @@ function renderLeaderboard() {
   scored.forEach((player, i) => {
     const row = document.createElement('div');
     row.className = `leaderboard-row ${classes[i]||''}`;
-    const badges = player.col.map(({ slotId, how }) => {
-      const slot = getSlot(slotId);
-      const isElim = Object.values(state.matchResults).some(r => r.loserSlot === slotId);
-      const cls = how === 'original' ? 'team-badge-green' : 'team-badge-purple';
-      return `<span class="team-badge ${cls}" style="${isElim?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
-    }).join('');
-
     row.innerHTML = `
       <div class="lb-position">${medals[i]}</div>
       <div class="lb-info">
         <div class="lb-name">${player.icon} ${player.name}</div>
-        <div class="lb-type">${player.original} bought · ${player.stolen} stolen/collected</div>
-        ${badges ? `<div class="lb-teams">${badges}</div>` : '<div class="lb-breakdown" style="color:var(--text3);font-style:italic">No teams yet</div>'}
       </div>
       <div>
         <div class="lb-points" style="color:var(--gold)">${player.total}</div>
@@ -710,11 +760,25 @@ function renderLeaderboard() {
     container.appendChild(row);
   });
 
-  if (Object.keys(state.matchResults).length === 0) {
-    const note = document.createElement('div');
-    note.className = 'leaderboard-empty';
-    note.innerHTML = '⚽ Teams update as match results are entered.';
-    container.appendChild(note);
+  // Reveal feed — what's actually been made public so far
+  if (state.revealFeed && state.revealFeed.length > 0) {
+    const feedTitle = document.createElement('div');
+    feedTitle.className = 'auction-section-title';
+    feedTitle.style.marginTop = '28px';
+    feedTitle.textContent = '📣 Reveal Feed';
+    container.appendChild(feedTitle);
+
+    const feedWrap = document.createElement('div');
+    feedWrap.className = 'reveal-feed';
+    state.revealFeed.forEach(entry => {
+      const item = document.createElement('div');
+      item.className = 'reveal-feed-item';
+      const ts = new Date(entry.ts);
+      const timeStr = ts.toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) + ' · ' + ts.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+      item.innerHTML = `<div class="reveal-feed-msg">${entry.msg}</div><div class="reveal-feed-time">${timeStr}</div>`;
+      feedWrap.appendChild(item);
+    });
+    container.appendChild(feedWrap);
   }
 }
 
@@ -790,7 +854,7 @@ async function resetEverything() {
   showLoading(true);
   const fresh = {
     liveAuction: { status:'not_started', matchIndex:0, phaseStartedAt:null },
-    bids:{}, owners:{}, collection:{}, matchResults:{}, slotOverrides:{}
+    bids:{}, owners:{}, collection:{}, matchResults:{}, slotOverrides:{}, revealFeed:[]
   };
   await setDoc(doc(db,'worldcup2026_r32','shared'), fresh);
   state = fresh;
