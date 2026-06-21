@@ -29,6 +29,7 @@ const PLAYERS = [
 ];
 
 const STARTING_COINS = 100;
+const MIN_BID         = 5;   // smallest amount you can actually bid (0 = no bid / skip)
 const BID_SECONDS     = 20;  // blind bid window
 const REVEAL_SECONDS  = 10;  // result + next match preview window
 
@@ -515,7 +516,7 @@ function renderAuctionPhase() {
           ${buildBidBox(slotB, match.slotB, myBidB, myBidA)}
         </div>
       </div>
-      <div class="live-bid-hint">Bids are blind — nobody can see what you bid. You can only back ONE team per match — choose wisely!</div>`;
+      <div class="live-bid-hint">Bids are blind — nobody can see what you bid. You can only back ONE team per match — choose wisely! Minimum bid is ${MIN_BID} coins (or 0 to skip this match).</div>`;
   } else if (la.status === 'reveal') {
     const slotA = getSlot(match.slotA);
     const slotB = getSlot(match.slotB);
@@ -558,6 +559,7 @@ window.lockLiveBid = async function(slotId) {
   const input = document.getElementById(`live-bid-${slotId}`);
   const amount = parseInt(input?.value);
   if (isNaN(amount) || amount < 0) { showToast('Enter a valid bid (0 or more)!','error'); return; }
+  if (amount > 0 && amount < MIN_BID) { showToast(`Minimum bid is ${MIN_BID} coins (or 0 to skip)!`,'error'); return; }
 
   const match = r32Matches[state.liveAuction.matchIndex];
   const otherSlot = match.slotA === slotId ? match.slotB : match.slotA;
@@ -1025,6 +1027,7 @@ window.lockTrialBid = function(slot) {
   const input = document.getElementById(`trial-bid-${slot}`);
   const amount = parseInt(input?.value);
   if (isNaN(amount) || amount < 0) { showToast('Enter a valid bid (0 or more)!','error'); return; }
+  if (amount > 0 && amount < MIN_BID) { showToast(`Minimum bid is ${MIN_BID} coins (or 0 to skip)!`,'error'); return; }
   if (amount > trial.coins) { showToast(`Not enough coins! Only ${trial.coins} available.`,'error'); return; }
   trial.myBid = { slot, amount };
   showToast(`Practice bid locked: ${amount} coins 🔒`,'success');
@@ -1117,7 +1120,7 @@ function renderTrialPhase() {
         <div class="live-bid-box"><div class="live-bid-team">${match.teamA.flag} ${match.teamA.name}</div>${box('A', match.teamA)}</div>
         <div class="live-bid-box"><div class="live-bid-team">${match.teamB.flag} ${match.teamB.name}</div>${box('B', match.teamB)}</div>
       </div>
-      <div class="live-bid-hint">This is practice — bids are blind here too, against 4 simulated bidders. You can only back ONE team per match.</div>`;
+      <div class="live-bid-hint">This is practice — bids are blind here too, against 4 simulated bidders. You can only back ONE team per match. Minimum bid is ${MIN_BID} coins (or 0 to skip).</div>`;
   } else if (trial.phase === 'reveal') {
     const resultsForMatch = trial.owners.filter(o => o.matchId === match.id);
     let resultHTML = '';
