@@ -1226,7 +1226,7 @@ function renderRules() {
 
       <div class="rules-scoring">
 
-        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their losing team</div>
+        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their team</div>
 
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
 
