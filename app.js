@@ -238,6 +238,9 @@ async function login(name) {
 function logout() {
   if (unsubscribe) unsubscribe();
   if (tickInterval) clearInterval(tickInterval);
+  document.removeEventListener('visibilitychange', forceCatchUp);
+  window.removeEventListener('focus', forceCatchUp);
+  window.removeEventListener('pageshow', forceCatchUp);
   currentUser = null;
   document.getElementById('app').classList.add('hidden');
   document.getElementById('login-screen').classList.remove('hidden');
@@ -276,6 +279,31 @@ function startTicker() {
       if (currentUser === 'Micole') checkPhaseTransition();
     }
   }, 1000);
+
+  // Safari/iOS throttles background tabs and can delay Firestore's websocket —
+  // force an immediate re-fetch + re-render the moment the app becomes visible/focused
+  // again, so the screen catches up instantly instead of waiting for the next snapshot.
+  document.addEventListener('visibilitychange', forceCatchUp);
+  window.addEventListener('focus', forceCatchUp);
+  window.addEventListener('pageshow', forceCatchUp);
+}
+
+async function forceCatchUp() {
+  if (document.visibilityState && document.visibilityState !== 'visible') return;
+  if (!currentUser) return;
+  lastRenderedKey = null; // bust the render cache so the next renderAuction() does a full rebuild
+  try {
+    const fresh = await loadFromFirebase();
+    state.liveAuction   = fresh.liveAuction   || state.liveAuction;
+    state.bids          = fresh.bids          || state.bids;
+    state.bidTimestamps = fresh.bidTimestamps || state.bidTimestamps;
+    state.owners        = fresh.owners        || state.owners;
+    state.collection    = fresh.collection    || state.collection;
+    state.matchResults  = fresh.matchResults  || state.matchResults;
+    state.slotOverrides = fresh.slotOverrides || state.slotOverrides;
+    state.revealFeed     = fresh.revealFeed   || state.revealFeed;
+  } catch (e) { /* network hiccup — listener will catch up on its own shortly */ }
+  refreshAll();
 }
 
 function getPhaseElapsedSeconds() {
