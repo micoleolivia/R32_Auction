@@ -226,7 +226,7 @@ async function login(name) {
   renderLeaderboard();
   if (isAdmin) renderResults();
 
-  showSection('auction', { target: document.getElementById('nav-auction') });
+  showSection('rules', { target: document.getElementById('nav-rules') });
   startLiveListener();
   startTicker();
   showLoading(false);
@@ -610,10 +610,6 @@ function renderResults() {
     const slotA   = getSlot(match.slotA);
     const slotB   = getSlot(match.slotB);
     const result  = state.matchResults[match.id];
-    const holderA = getCurrentHolder(match.slotA);
-    const holderB = getCurrentHolder(match.slotB);
-    const pA = holderA ? PLAYERS.find(p=>p.name===holderA) : null;
-    const pB = holderB ? PLAYERS.find(p=>p.name===holderB) : null;
 
     const card = document.createElement('div');
     card.className = 'result-card';
@@ -628,17 +624,12 @@ function renderResults() {
           <button class="bid-remove-btn" style="margin-top:8px" onclick="clearResult('${match.id}')">↩ Undo</button>
         </div>`;
     } else {
+      // Deliberately no owner names shown here — ownership stays secret until a result locks it in
       card.innerHTML = `
         <div class="result-teams">
-          <div class="result-team">
-            <span>${slotA?.flag||'🏳️'} ${slotA?.name||'TBD'}</span>
-            ${pA ? `<span class="result-owner">${pA.icon} ${holderA}</span>` : '<span class="result-owner no-owner">unowned</span>'}
-          </div>
+          <div class="result-team"><span>${slotA?.flag||'🏳️'} ${slotA?.name||'TBD'}</span></div>
           <div class="result-vs">VS</div>
-          <div class="result-team">
-            <span>${slotB?.flag||'🏳️'} ${slotB?.name||'TBD'}</span>
-            ${pB ? `<span class="result-owner">${pB.icon} ${holderB}</span>` : '<span class="result-owner no-owner">unowned</span>'}
-          </div>
+          <div class="result-team"><span>${slotB?.flag||'🏳️'} ${slotB?.name||'TBD'}</span></div>
         </div>
         <div class="result-btns">
           <button class="result-pick-btn" onclick="recordResult('${match.id}','${match.slotA}','${match.slotB}')">${slotA?.flag||'🏳️'} ${slotA?.name||'?'} won</button>
