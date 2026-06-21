@@ -667,26 +667,34 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
 
   if (winnerHolder && loserHolder && winnerHolder === loserHolder) {
     state.collection[winnerHolder] = (state.collection[winnerHolder]||[]).filter(c => c.slotId !== loserSlot);
-    feedEntry.msg = `⚽ ${winner?.flag} ${winner?.name} beat ${loser?.flag} ${loser?.name} — both were ${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}'s own teams! ${loser?.name} is eliminated.`;
+    feedEntry.kind = 'neutral';
+    feedEntry.msg = `⚽ <strong>${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}</strong> won an all-self matchup — ${winner?.flag} ${winner?.name} beat their own ${loser?.flag} ${loser?.name}. ${loser?.name} is eliminated.`;
     showToast(`${winner?.name} beat your own ${loser?.name} — eliminated`,'');
   } else if (winnerHolder) {
     if (loserHolder) {
       state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
       if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
       state.collection[winnerHolder].push({ slotId: loserSlot, how:'stolen' });
-      feedEntry.msg = `🔥 ${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name} beat ${PLAYERS.find(p=>p.name===loserHolder)?.icon} ${loserHolder}'s ${loser?.flag} ${loser?.name} — ${winnerHolder} steals the team!`;
+      const wp = PLAYERS.find(p=>p.name===winnerHolder), lp = PLAYERS.find(p=>p.name===loserHolder);
+      feedEntry.kind = 'steal';
+      feedEntry.msg = `🔥 <strong>${wp?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name}</strong> stole <strong>${loser?.flag} ${loser?.name}</strong> from <strong>${lp?.icon} ${loserHolder}</strong>!`;
       showToast(`${winnerHolder} stole ${loser?.name} from ${loserHolder}! 🔥`,'success');
     } else {
       if (!state.collection[winnerHolder]) state.collection[winnerHolder] = [];
       state.collection[winnerHolder].push({ slotId: loserSlot, how:'collected' });
-      feedEntry.msg = `✅ ${PLAYERS.find(p=>p.name===winnerHolder)?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name} beat unowned ${loser?.flag} ${loser?.name} — collected!`;
+      const wp = PLAYERS.find(p=>p.name===winnerHolder);
+      feedEntry.kind = 'collect';
+      feedEntry.msg = `✅ <strong>${wp?.icon} ${winnerHolder}'s ${winner?.flag} ${winner?.name}</strong> collected unowned <strong>${loser?.flag} ${loser?.name}</strong>!`;
       showToast(`${winnerHolder} collected ${loser?.name}! ✅`,'success');
     }
   } else if (loserHolder) {
     state.collection[loserHolder] = (state.collection[loserHolder]||[]).filter(c => c.slotId !== loserSlot);
-    feedEntry.msg = `❌ Unowned ${winner?.flag} ${winner?.name} beat ${PLAYERS.find(p=>p.name===loserHolder)?.icon} ${loserHolder}'s ${loser?.flag} ${loser?.name} — team is gone, nobody gains it.`;
+    const lp = PLAYERS.find(p=>p.name===loserHolder);
+    feedEntry.kind = 'loss';
+    feedEntry.msg = `❌ Unowned ${winner?.flag} ${winner?.name} eliminated <strong>${lp?.icon} ${loserHolder}'s ${loser?.flag} ${loser?.name}</strong> — team is gone, nobody gains it.`;
     showToast(`${loser?.name} eliminated — ${loserHolder} loses their team`,'');
   } else {
+    feedEntry.kind = 'neutral';
     feedEntry.msg = `👻 ${winner?.flag} ${winner?.name} beat ${loser?.flag} ${loser?.name} — both unowned, nothing changes.`;
   }
 
@@ -713,6 +721,34 @@ function renderLeaderboard() {
   container.innerHTML = '';
 
   const hasResults = Object.keys(state.matchResults).length > 0;
+
+  // ===== REVEAL FEED — shown first, capped at 3, expandable =====
+  if (state.revealFeed && state.revealFeed.length > 0) {
+    const feedTitle = document.createElement('div');
+    feedTitle.className = 'auction-section-title';
+    feedTitle.textContent = '📣 Reveal Feed';
+    container.appendChild(feedTitle);
+
+    const feedWrap = document.createElement('div');
+    feedWrap.className = 'reveal-feed';
+    feedWrap.id = 'reveal-feed-wrap';
+    container.appendChild(feedWrap);
+
+    renderRevealFeedItems(feedWrap, false);
+
+    if (state.revealFeed.length > 3) {
+      const expandBtn = document.createElement('button');
+      expandBtn.className = 'reveal-feed-expand-btn';
+      expandBtn.id = 'reveal-feed-expand-btn';
+      expandBtn.textContent = `Show all ${state.revealFeed.length} updates ▾`;
+      expandBtn.onclick = () => toggleRevealFeed(feedWrap, expandBtn);
+      container.appendChild(expandBtn);
+    }
+
+    const divider = document.createElement('div');
+    divider.style.cssText = 'height:1px;background:var(--border);margin:28px 0;';
+    container.appendChild(divider);
+  }
 
   if (!hasResults) {
     // Before any World Cup results — total secrecy, just show everyone at 0
@@ -756,6 +792,11 @@ function renderLeaderboard() {
     return { ...p, known: knownTeams.length, knownTeams };
   }).sort((a,b) => b.known - a.known);
 
+  const lbTitle = document.createElement('div');
+  lbTitle.className = 'auction-section-title';
+  lbTitle.textContent = '🏆 Standings';
+  container.appendChild(lbTitle);
+
   const medals  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
   const classes = ['first','second','third','',''];
 
@@ -795,27 +836,27 @@ function renderLeaderboard() {
       </div>`;
     container.appendChild(row);
   });
+}
 
-  // Reveal feed — what's actually been made public so far
-  if (state.revealFeed && state.revealFeed.length > 0) {
-    const feedTitle = document.createElement('div');
-    feedTitle.className = 'auction-section-title';
-    feedTitle.style.marginTop = '28px';
-    feedTitle.textContent = '📣 Reveal Feed';
-    container.appendChild(feedTitle);
+// Renders feed items into a wrap element, either capped to 3 (latest first) or all
+function renderRevealFeedItems(wrap, showAll) {
+  wrap.innerHTML = '';
+  const items = showAll ? state.revealFeed : state.revealFeed.slice(0, 3);
+  items.forEach(entry => {
+    const item = document.createElement('div');
+    item.className = `reveal-feed-item reveal-feed-${entry.kind || 'neutral'}`;
+    const ts = new Date(entry.ts);
+    const timeStr = ts.toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) + ' · ' + ts.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+    item.innerHTML = `<div class="reveal-feed-msg">${entry.msg}</div><div class="reveal-feed-time">${timeStr}</div>`;
+    wrap.appendChild(item);
+  });
+}
 
-    const feedWrap = document.createElement('div');
-    feedWrap.className = 'reveal-feed';
-    state.revealFeed.forEach(entry => {
-      const item = document.createElement('div');
-      item.className = 'reveal-feed-item';
-      const ts = new Date(entry.ts);
-      const timeStr = ts.toLocaleDateString('en-ZA',{day:'numeric',month:'short'}) + ' · ' + ts.toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
-      item.innerHTML = `<div class="reveal-feed-msg">${entry.msg}</div><div class="reveal-feed-time">${timeStr}</div>`;
-      feedWrap.appendChild(item);
-    });
-    container.appendChild(feedWrap);
-  }
+function toggleRevealFeed(wrap, btn) {
+  const isExpanded = btn.dataset.expanded === 'true';
+  renderRevealFeedItems(wrap, !isExpanded);
+  btn.dataset.expanded = (!isExpanded).toString();
+  btn.textContent = !isExpanded ? 'Show less ▴' : `Show all ${state.revealFeed.length} updates ▾`;
 }
 
 // ============================================
