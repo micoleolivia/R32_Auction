@@ -102,6 +102,7 @@ let state = {
     phaseStartedAt: null,    // ISO timestamp when current phase began
   },
   bids:         {},  // bids[slotId][username] = amount  (blind — only revealed after window closes)
+  bidTimestamps:{},  // bidTimestamps[slotId][username] = Date.now() when locked — breaks ties
   owners:       {},  // owners[slotId] = { username, coins }
   collection:   {},  // collection[username] = [{ slotId, how:'original'|'stolen'|'collected' }]
   matchResults: {},  // matchResults[matchId] = { winnerSlot, loserSlot }
@@ -136,6 +137,7 @@ function startLiveListener() {
       const d = snap.data();
       state.liveAuction   = d.liveAuction   || state.liveAuction;
       state.bids          = d.bids          || {};
+      state.bidTimestamps = d.bidTimestamps || {};
       state.owners        = d.owners        || {};
       state.collection    = d.collection    || {};
       state.matchResults  = d.matchResults  || {};
@@ -205,6 +207,7 @@ async function login(name) {
   const d = await loadFromFirebase();
   state.liveAuction   = d.liveAuction   || state.liveAuction;
   state.bids          = d.bids          || {};
+  state.bidTimestamps = d.bidTimestamps || {};
   state.owners        = d.owners        || {};
   state.collection    = d.collection    || {};
   state.matchResults  = d.matchResults  || {};
@@ -309,7 +312,12 @@ async function closeBiddingPhase() {
   [match.slotA, match.slotB].forEach(slotId => {
     if (state.owners[slotId]) return; // already owned somehow
     const bids = state.bids[slotId] || {};
-    const entries = Object.entries(bids).sort(([,a],[,b]) => b-a);
+    const timestamps = (state.bidTimestamps && state.bidTimestamps[slotId]) || {};
+    // Highest bid wins; ties go to whoever locked their bid in first (fastest finger)
+    const entries = Object.entries(bids).sort(([userA,a],[userB,b]) => {
+      if (b !== a) return b - a;
+      return (timestamps[userA] || 0) - (timestamps[userB] || 0);
+    });
     if (entries.length === 0) return;
     const [winner, coins] = entries[0];
     state.owners[slotId] = { username: winner, coins };
@@ -522,7 +530,10 @@ window.lockLiveBid = async function(slotId) {
 
   if (!state.bids[slotId]) state.bids[slotId] = {};
   state.bids[slotId][currentUser] = amount;
-  await saveToFirebase({ bids: state.bids });
+  if (!state.bidTimestamps) state.bidTimestamps = {};
+  if (!state.bidTimestamps[slotId]) state.bidTimestamps[slotId] = {};
+  state.bidTimestamps[slotId][currentUser] = Date.now();
+  await saveToFirebase({ bids: state.bids, bidTimestamps: state.bidTimestamps });
   showToast(`Bid locked: ${amount} coins 🔒`,'success');
   renderAuctionPhase();
 };
@@ -825,6 +836,7 @@ function renderRules() {
     <div class="rules-block">
       <h3>🔒 Blind Bidding</h3>
       <p>When a match opens (e.g. Brazil vs Germany), you have ${BID_SECONDS} seconds to bid on Brazil, Germany, both, or neither. Nobody can see anyone else's bids. Highest bid wins each team. You don't have to bid if you don't want either team.</p>
+      <p><strong>Tie-breaker:</strong> if two or more players bid the exact same highest amount, the team goes to whoever locked their bid in first — fastest finger first! ⚡</p>
     </div>
     <div class="rules-block">
       <h3>🤫 Total Secrecy</h3>
@@ -893,7 +905,7 @@ async function resetEverything() {
   showLoading(true);
   const fresh = {
     liveAuction: { status:'not_started', matchIndex:0, phaseStartedAt:null },
-    bids:{}, owners:{}, collection:{}, matchResults:{}, slotOverrides:{}, revealFeed:[]
+    bids:{}, bidTimestamps:{}, owners:{}, collection:{}, matchResults:{}, slotOverrides:{}, revealFeed:[]
   };
   await setDoc(doc(db,'worldcup2026_r32','shared'), fresh);
   state = fresh;
