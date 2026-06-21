@@ -198,7 +198,7 @@ function updateHeader() {
   if (!el || !currentUser) return;
   const remaining = getCoinsRemaining(currentUser);
   const teams = getTotalTeams(currentUser);
-  el.textContent = `${currentUser} · 🪙 ${remaining} coins · 🏳️ ${teams} teams`;
+  el.textContent = `${currentUser} · 💰 ${remaining} coins · 🏳️ ${teams} teams`;
 }
 
 // ============================================
@@ -416,7 +416,7 @@ function renderAuction() {
       <div class="live-waiting">
         <div class="live-waiting-icon">⏳</div>
         <div class="live-waiting-title">Waiting for the auction to start...</div>
-        <div class="live-waiting-sub">🪙 You have ${getCoinsRemaining(currentUser)} coins ready to bid</div>
+        <div class="live-waiting-sub">💰 You have ${getCoinsRemaining(currentUser)} coins ready to bid</div>
         ${isAdmin ? `<button class="cta-btn" style="margin-top:24px" onclick="startLiveAuction()">🔥 Start Live Auction</button>` : ''}
       </div>`;
     return;
@@ -449,7 +449,7 @@ function renderAuction() {
 
   container.innerHTML = `
     <div class="live-progress">Match ${la.matchIndex + 1} of ${r32Matches.length}</div>
-    <div class="live-coins">🪙 ${getCoinsRemaining(currentUser)} coins available</div>
+    <div class="live-coins">💰 ${getCoinsRemaining(currentUser)} coins available</div>
     <div class="live-matchup">
       <div class="live-team">
         <div class="live-flag">${slotA?.flag}</div>
@@ -584,7 +584,7 @@ function renderAuctionPhase() {
     zone.innerHTML = `
       <div class="live-reveal-title">Results</div>
       ${resultHTML}
-      <div class="live-balance">🪙 ${getCoinsRemaining(currentUser)} coins remaining</div>
+      <div class="live-balance">💰 ${getCoinsRemaining(currentUser)} coins remaining</div>
       ${nextHTML}`;
   }
 }
@@ -657,8 +657,8 @@ function renderMyPicks() {
   const summary = document.createElement('div');
   summary.className = 'squad-summary';
   summary.innerHTML = `
-    <div class="squad-stat"><div class="squad-stat-val">🪙 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
-    <div class="squad-stat"><div class="squad-stat-val">🪙 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
+    <div class="squad-stat"><div class="squad-stat-val">💰 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
+    <div class="squad-stat"><div class="squad-stat-val">💰 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">🏳️ ${myCol.length}</div><div class="squad-stat-lbl">total teams</div></div>
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
   container.appendChild(summary);
@@ -1094,7 +1094,7 @@ function renderTrial() {
   const match = TRIAL_MATCHES[trial.matchIndex];
   container.innerHTML = `
     <div class="live-progress">Practice Match ${trial.matchIndex + 1} of ${TRIAL_MATCHES.length}</div>
-    <div class="live-coins">🪙 ${trial.coins} coins available</div>
+    <div class="live-coins">💰 ${trial.coins} coins available</div>
     <div class="live-matchup">
       <div class="live-team"><div class="live-flag">${match.teamA.flag}</div><div class="live-name">${match.teamA.name}</div></div>
       <div class="live-vs">VS</div>
@@ -1174,7 +1174,7 @@ function renderTrialPhase() {
     zone.innerHTML = `
       <div class="live-reveal-title">Results</div>
       ${resultHTML}
-      <div class="live-balance">🪙 ${trial.coins} coins remaining</div>
+      <div class="live-balance">💰 ${trial.coins} coins remaining</div>
       ${nextHTML}`;
   }
 }
