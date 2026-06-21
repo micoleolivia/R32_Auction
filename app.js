@@ -1214,6 +1214,8 @@ function renderRules() {
 
       <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
 
+        <p>After the auction closes you don't need to do anything else, the system handles the rest. All you need to do is watch how your teams steal or get stolen!</p>
+        
     </div>
 
     <div class="rules-block">
