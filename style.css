@@ -225,3 +225,6 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 
 /* LIVE BID — ONE TEAM PER MATCH */
 .live-bid-disabled{font-size:.78rem;color:var(--text3);background:var(--bg2);border:1px dashed var(--border);padding:10px;border-radius:8px;text-align:center}
+
+/* TRIAL RUN */
+.trial-summary-teams{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;max-width:400px}
