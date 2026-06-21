@@ -1148,33 +1148,34 @@ function renderRules() {
   if (!container) return;
   container.innerHTML = `
     <div class="rules-block">
-      <h3>⚡ The Basics</h3>
-      <p>It's a live, blind auction for World Cup teams. Everyone starts with <strong>100 coins</strong>. Win teams, watch them play, steal from anyone they knock out. Most teams at the end wins.</p>
+      <h3>⚡ The Gist</h3>
+      <p>It's a live, blind auction for World Cup teams.</p>
+      <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
     </div>
     <div class="rules-block">
       <h3>🔒 How Bidding Works</h3>
-      <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both) — nobody can see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
-      <p>${REVEAL_SECONDS} seconds later you see your own result, then it's straight on to the next match — all 16 in about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
+      <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
+      <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+      <p>${REVEAL_SECONDS} seconds later you see your own result — either a congratulatory message or a "sorry, you lost" message — then it's straight on to the next match.</p>
+      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens — who stole what from who.</p>
+      <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
     </div>
     <div class="rules-block">
-      <h3>🤫 It's a Secret</h3>
-      <p>You only ever see your own outcome. Ownership stays hidden until that team actually plays in the real World Cup — that's when the reveal happens.</p>
-    </div>
-    <div class="rules-block">
-      <h3>🔥 What Happens When Teams Play</h3>
+      <h3>🔥 How to Get More Teams After the Auction</h3>
       <div class="rules-scoring">
-        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Beat someone's owned team → you take it</div>
-        <div class="rules-score-row"><span class="score-badge gold">Collect</span> Beat an unowned team → it's yours</div>
-        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Lose to an unowned team → gone, nobody gains it</div>
+        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their losing team</div>
+        <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team just disappears and belongs to no one</div>
       </div>
     </div>
     <div class="rules-block">
-      <h3>📈 Strategy</h3>
-      <p>More teams = more chances to steal and climb the leaderboard. Don't blow your whole budget on one team — spread it out.</p>
+      <h3>💡 A Little Hint</h3>
+      <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team — spread it out, or don't, and accept that you're limiting your own chances of climbing the leaderboard.</p>
     </div>
     <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
-      <h3>🎮 Try It First</h3>
-      <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like — nothing there counts.</p>
+      <h3>🎮 Want a Trial Run?</h3>
+      <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like. Nothing there counts.</p>
     </div>`;
 }
 
