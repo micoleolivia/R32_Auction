@@ -30,6 +30,7 @@ const PLAYERS = [
 
 const STARTING_COINS = 100;
 const MIN_BID         = 5;   // smallest amount you can actually bid (0 = no bid / skip)
+const COUNTDOWN_SECONDS = 10; // pre-auction "get ready" countdown shown to everyone
 const BID_SECONDS     = 20;  // blind bid window
 const REVEAL_SECONDS  = 10;  // result + next match preview window
 
@@ -98,7 +99,7 @@ let currentUser = null;
 let state = {
   // Live auction engine state
   liveAuction: {
-    status: 'not_started',  // 'not_started' | 'bidding' | 'reveal' | 'finished'
+    status: 'not_started',  // 'not_started' | 'countdown' | 'bidding' | 'reveal' | 'finished'
     matchIndex: 0,           // which match in r32Matches we're on
     phaseStartedAt: null,    // ISO timestamp when current phase began
   },
@@ -276,6 +277,7 @@ function startTicker() {
     const auctionSection = document.getElementById('auction');
     if (auctionSection && !auctionSection.classList.contains('hidden')) {
       renderAuctionTimer();
+      renderCountdownNumber();
       // Only admin's browser drives automatic phase transitions to avoid race conditions
       if (currentUser === 'Micole') checkPhaseTransition();
     }
@@ -314,7 +316,13 @@ function getPhaseElapsedSeconds() {
 
 async function checkPhaseTransition() {
   const la = state.liveAuction;
-  if (la.status === 'bidding') {
+  if (la.status === 'countdown') {
+    if (getPhaseElapsedSeconds() >= COUNTDOWN_SECONDS) {
+      state.liveAuction = { status:'bidding', matchIndex:0, phaseStartedAt:new Date().toISOString() };
+      await saveToFirebase({ liveAuction: state.liveAuction });
+      renderAuction();
+    }
+  } else if (la.status === 'bidding') {
     if (getPhaseElapsedSeconds() >= BID_SECONDS) {
       await closeBiddingPhase();
     }
@@ -326,10 +334,10 @@ async function checkPhaseTransition() {
 }
 
 window.startLiveAuction = async function() {
-  if (!confirm('Start the live auction? This will open Match 1 for everyone right now!')) return;
-  state.liveAuction = { status:'bidding', matchIndex:0, phaseStartedAt:new Date().toISOString() };
+  if (!confirm('Start the live auction? A 10 second countdown will begin for everyone right now!')) return;
+  state.liveAuction = { status:'countdown', matchIndex:0, phaseStartedAt:new Date().toISOString() };
   await saveToFirebase({ liveAuction: state.liveAuction });
-  showToast('🔥 Auction started!','success');
+  showToast('⏳ Countdown started!','success');
   renderAuction();
 };
 
@@ -396,6 +404,11 @@ function renderAuction() {
     renderAuctionPhase();
     return;
   }
+  // Countdown re-renders every second via renderAuctionTimer's own update, so just refresh the number there
+  if (renderKey === lastRenderedKey && la.status === 'countdown') {
+    renderCountdownNumber();
+    return;
+  }
   lastRenderedKey = renderKey;
 
   if (la.status === 'not_started') {
@@ -406,6 +419,17 @@ function renderAuction() {
         <div class="live-waiting-sub">🪙 You have ${getCoinsRemaining(currentUser)} coins ready to bid</div>
         ${isAdmin ? `<button class="cta-btn" style="margin-top:24px" onclick="startLiveAuction()">🔥 Start Live Auction</button>` : ''}
       </div>`;
+    return;
+  }
+
+  if (la.status === 'countdown') {
+    container.innerHTML = `
+      <div class="live-waiting">
+        <div class="live-waiting-title" style="margin-bottom:4px">Get ready!</div>
+        <div class="live-waiting-sub">The auction is about to begin</div>
+        <div id="countdown-number" class="countdown-number">${COUNTDOWN_SECONDS}</div>
+      </div>`;
+    renderCountdownNumber();
     return;
   }
 
@@ -464,6 +488,16 @@ function renderAuctionTimer() {
       <div class="live-timer-bar" style="width:${pct}%; background:${la.status==='bidding'?'var(--gold)':'var(--teal)'}"></div>
     </div>
     <div class="live-timer-num">${remaining}s</div>`;
+}
+
+function renderCountdownNumber() {
+  const el = document.getElementById('countdown-number');
+  if (!el) return;
+  const la = state.liveAuction;
+  if (la.status !== 'countdown') return;
+  const elapsed = getPhaseElapsedSeconds();
+  const remaining = Math.max(0, Math.ceil(COUNTDOWN_SECONDS - elapsed));
+  el.textContent = remaining > 0 ? remaining : 'GO!';
 }
 
 function renderAuctionPhase() {
@@ -1147,41 +1181,77 @@ function renderTrialPhase() {
 
 
 function renderRules() {
+
   const container = document.getElementById('rules-container');
+
   if (!container) return;
+
   container.innerHTML = `
+
     <div class="rules-block">
+
       <h3>The Gist</h3>
+
       <p>It's a live, blind auction for World Cup teams.</p>
+
       <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
+
     </div>
+
     <div class="rules-block">
+
       <h3>How Bidding Works</h3>
+
       <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
+
       <p>The minimum bid that can be made is 5 coins.</p>
+
       <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+
       <p>${REVEAL_SECONDS} seconds later you see your own result — either a congratulatory message or a "sorry, you lost" message, then it's straight on to the next match.</p>
+
       <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from who).</p>
+
       <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
+
     </div>
+
     <div class="rules-block">
+
       <h3>How to Get More Teams After the Auction</h3>
+
       <div class="rules-scoring">
+
         <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their losing team</div>
+
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
+
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
+
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team just disappears and belongs to no one</div>
+
       </div>
+
     </div>
+
     <div class="rules-block">
+
       <h3>💡 A Little Hint 💡</h3>
+
       <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team, spread it out, or don't and accept that you're limiting your own chances of climbing the leaderboard.</p>
+
     </div>
+
     <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
+
       <h3>Want a Trial Run?</h3>
+
       <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like. Nothing there counts.</p>
+
     </div>`;
+
 }
+
 
 // ============================================
 // LOADING, TOAST, RESET
