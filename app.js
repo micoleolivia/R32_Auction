@@ -29,8 +29,8 @@ const PLAYERS = [
 ];
 
 const STARTING_COINS = 100;
-const BID_SECONDS     = 25;  // blind bid window
-const REVEAL_SECONDS  = 15;  // result + next match preview window
+const BID_SECONDS     = 20;  // blind bid window
+const REVEAL_SECONDS  = 10;  // result + next match preview window
 
 // ============================================
 // ROUND OF 32 SLOTS
@@ -891,8 +891,8 @@ const TRIAL_MATCHES = [
   { id:'t2', teamA:{ name:'Argentina', flag:'🇦🇷' },   teamB:{ name:'Japan', flag:'🇯🇵' } },
   { id:'t3', teamA:{ name:'Portugal', flag:'🇵🇹' },    teamB:{ name:'Senegal', flag:'🇸🇳' } },
 ];
-const TRIAL_BID_SECONDS    = 25;
-const TRIAL_REVEAL_SECONDS = 15;
+const TRIAL_BID_SECONDS    = 20;
+const TRIAL_REVEAL_SECONDS = 10;
 
 let trial = null; // { coins, matchIndex, phase, phaseStartedAt, bids:{teamA,teamB or null}, myBid:{slot,amount}|null, owners:{}, history:[] }
 let trialTickInterval = null;
@@ -1107,53 +1107,33 @@ function renderRules() {
   if (!container) return;
   container.innerHTML = `
     <div class="rules-block">
-      <h3>⚡ A live, blind, synchronized auction</h3>
-      <p>Everyone logs in beforehand. At a set time, Micole starts the auction and it runs through all 16 Round of 32 matches automatically — one at a time, ${BID_SECONDS} seconds to bid, ${REVEAL_SECONDS} seconds to see your result, then straight on to the next match.</p>
+      <h3>⚡ The Basics</h3>
+      <p>It's a live, blind auction for World Cup teams. Everyone starts with <strong>100 coins</strong>. Win teams, watch them play, steal from anyone they knock out. Most teams at the end wins.</p>
     </div>
     <div class="rules-block">
-      <h3>🪙 Your Budget</h3>
-      <p>Everyone starts with <strong>100 coins</strong>. Spend wisely — you can never get more.</p>
+      <h3>🔒 How Bidding Works</h3>
+      <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both) — nobody can see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+      <p>${REVEAL_SECONDS} seconds later you see your own result, then it's straight on to the next match — all 16 in about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
     </div>
     <div class="rules-block">
-      <h3>🔒 Blind Bidding</h3>
-      <p>When a match opens (e.g. Brazil vs Germany), you have ${BID_SECONDS} seconds to bid on Brazil, Germany, both, or neither. Nobody can see anyone else's bids. Highest bid wins each team. You don't have to bid if you don't want either team.</p>
-      <p><strong>Tie-breaker:</strong> if two or more players bid the exact same highest amount, the team goes to whoever locked their bid in first — fastest finger first! ⚡</p>
+      <h3>🤫 It's a Secret</h3>
+      <p>You only ever see your own outcome. Ownership stays hidden until that team actually plays in the real World Cup — that's when the reveal happens.</p>
     </div>
     <div class="rules-block">
-      <h3>🤫 Total Secrecy</h3>
-      <p>You only ever see <strong>your own</strong> result — "you won" or "you lost." You never find out who else bid or who actually owns a team. Ownership stays completely hidden until that team actually plays in the real World Cup and Micole enters the result. That's when the reveal happens — "🔥 Micole's Brazil beat Sean's Germany!"</p>
-    </div>
-    <div class="rules-block">
-      <h3>⏱️ The Pace</h3>
-      <p>${BID_SECONDS}s to bid, then ${REVEAL_SECONDS}s to see your result and the next matchup, then it's straight into the next match. All 16 matches take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes start to finish. Fast and final — no second-guessing once you lock a bid in.</p>
-    </div>
-    <div class="rules-block">
-      <h3>What happens when teams play?</h3>
+      <h3>🔥 What Happens When Teams Play</h3>
       <div class="rules-scoring">
-        <div class="rules-score-row"><span class="score-badge gold">🔥 Steal</span> Your team beats someone else's owned team → you steal their team</div>
-        <div class="rules-score-row"><span class="score-badge gold">✅ Collect</span> Your team beats an unowned team → you collect that team</div>
-        <div class="rules-score-row"><span class="score-badge neutral">❌ Lose</span> Your team loses to an unowned team → your team disappears, nobody gets it</div>
-        <div class="rules-score-row"><span class="score-badge neutral">⚽ Self</span> You own both teams in a match → your winner stays, your loser is just eliminated</div>
+        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Beat someone's owned team → you take it</div>
+        <div class="rules-score-row"><span class="score-badge gold">Collect</span> Beat an unowned team → it's yours</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Lose to an unowned team → gone, nobody gains it</div>
       </div>
     </div>
     <div class="rules-block">
-      <h3>📈 More Teams = More Chances</h3>
-      <p>The more teams you own, the more matches you're involved in — and the more chances you get to <strong>steal</strong> and climb the leaderboard. Someone with 1 team has 1 shot. Someone with 8 teams has 8 shots at stealing, plus 8 chances of getting stolen from.</p>
+      <h3>📈 Strategy</h3>
+      <p>More teams = more chances to steal and climb the leaderboard. Don't blow your whole budget on one team — spread it out.</p>
     </div>
-    <div class="rules-block" style="border-color:rgba(255,71,87,.3)">
-      <h3>⚠️ One Team Per Match — Only</h3>
-      <p>You can only back <strong>one</strong> side of any matchup, never both. Once you lock a bid on Brazil, Germany's input locks out — you'd have to switch your bid back off Brazil first if you change your mind.</p>
-      <p>This is enforced on purpose, here's why bidding on both would work against you anyway:</p>
-      <div class="rules-scoring">
-        <div class="rules-score-row"><span class="score-badge neutral">1</span> You can't steal a team from yourself — owning both means no steal happens either way</div>
-        <div class="rules-score-row"><span class="score-badge neutral">2</span> You'd spend more coins for the same single outcome, leaving less to bid on other matches</div>
-        <div class="rules-score-row"><span class="score-badge neutral">3</span> Fewer coins left means fewer teams owned overall — and fewer chances to steal elsewhere</div>
-      </div>
-      <p style="margin-top:10px">Choose one side per match wisely, and spread the rest of your coins across other matches instead. 🎯</p>
-    </div>
-    <div class="rules-block">
-      <h3>🏆 How to Win</h3>
-      <p>Most teams owned at the end of the Round of 32 wins. Simple. Back the right teams in the blind auction and steal smart when results come in.</p>
+    <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
+      <h3>🎮 Try It First</h3>
+      <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like — nothing there counts.</p>
     </div>`;
 }
 
