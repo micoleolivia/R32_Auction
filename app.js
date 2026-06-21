@@ -659,7 +659,7 @@ function renderMyPicks() {
   summary.innerHTML = `
     <div class="squad-stat"><div class="squad-stat-val">💰 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
     <div class="squad-stat"><div class="squad-stat-val">💰 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
-    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">🏳️ ${myCol.length}</div><div class="squad-stat-lbl">total teams bought</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)"> ${myCol.length}</div><div class="squad-stat-lbl">total teams bought</div></div>
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
   container.appendChild(summary);
 
