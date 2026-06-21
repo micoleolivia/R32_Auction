@@ -1151,13 +1151,14 @@ function renderRules() {
   if (!container) return;
   container.innerHTML = `
     <div class="rules-block">
-      <h3>⚡ The Gist</h3>
+      <h3>The Gist</h3>
       <p>It's a live, blind auction for World Cup teams.</p>
       <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
     </div>
     <div class="rules-block">
       <h3>How Bidding Works</h3>
       <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
+      <p>The minimum bid that can be made is 5 coins.</p>
       <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
       <p>${REVEAL_SECONDS} seconds later you see your own result — either a congratulatory message or a "sorry, you lost" message, then it's straight on to the next match.</p>
       <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from who).</p>
