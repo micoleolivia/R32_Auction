@@ -458,26 +458,35 @@ function renderAuctionPhase() {
     const myBidB = (state.bids[match.slotB]||{})[currentUser];
     const slotA = getSlot(match.slotA);
     const slotB = getSlot(match.slotB);
+    const hasBidOnEither = myBidA !== undefined || myBidB !== undefined;
+
+    function buildBidBox(slot, slotId, myBid, otherBid) {
+      if (myBid !== undefined) {
+        // This is the team they've locked in
+        return `<div class="live-bid-locked">✅ Bid locked: ${myBid} coins</div>
+                <button class="bid-remove-btn" style="margin-top:8px;width:100%" onclick="switchLiveBid('${slotId}')">↺ Switch team</button>`;
+      } else if (otherBid !== undefined) {
+        // They've bid on the OTHER team — this one is locked out
+        return `<div class="live-bid-disabled">🚫 You've already bid on the other team</div>`;
+      } else {
+        return `<div class="bid-row"><input type="number" min="0" max="${coinsLeft}" id="live-bid-${slotId}" class="bid-input" placeholder="0"/>
+                 <button class="bid-btn" onclick="lockLiveBid('${slotId}')">Lock 🔒</button></div>`;
+      }
+    }
 
     zone.innerHTML = `
-      <div class="live-bid-title">🔒 Place your blind bid${myBidA||myBidB ? ' — locked in!' : ''}</div>
+      <div class="live-bid-title">🔒 Place your blind bid${hasBidOnEither ? ' — locked in!' : ''}</div>
       <div class="live-bid-grid">
         <div class="live-bid-box">
           <div class="live-bid-team">${slotA?.flag} ${slotA?.name}</div>
-          ${myBidA !== undefined
-            ? `<div class="live-bid-locked">✅ Bid locked: ${myBidA} coins</div>`
-            : `<div class="bid-row"><input type="number" min="0" max="${coinsLeft}" id="live-bid-${match.slotA}" class="bid-input" placeholder="0"/>
-               <button class="bid-btn" onclick="lockLiveBid('${match.slotA}')">Lock 🔒</button></div>`}
+          ${buildBidBox(slotA, match.slotA, myBidA, myBidB)}
         </div>
         <div class="live-bid-box">
           <div class="live-bid-team">${slotB?.flag} ${slotB?.name}</div>
-          ${myBidB !== undefined
-            ? `<div class="live-bid-locked">✅ Bid locked: ${myBidB} coins</div>`
-            : `<div class="bid-row"><input type="number" min="0" max="${coinsLeft}" id="live-bid-${match.slotB}" class="bid-input" placeholder="0"/>
-               <button class="bid-btn" onclick="lockLiveBid('${match.slotB}')">Lock 🔒</button></div>`}
+          ${buildBidBox(slotB, match.slotB, myBidB, myBidA)}
         </div>
       </div>
-      <div class="live-bid-hint">Bids are blind — nobody can see what you bid. You don't have to bid on either team.</div>`;
+      <div class="live-bid-hint">Bids are blind — nobody can see what you bid. You can only back ONE team per match — choose wisely!</div>`;
   } else if (la.status === 'reveal') {
     const slotA = getSlot(match.slotA);
     const slotB = getSlot(match.slotB);
@@ -523,10 +532,16 @@ window.lockLiveBid = async function(slotId) {
 
   const match = r32Matches[state.liveAuction.matchIndex];
   const otherSlot = match.slotA === slotId ? match.slotB : match.slotA;
-  const myOtherBid = (state.bids[otherSlot]||{})[currentUser] || 0;
-  const coinsAvailable = getCoinsRemaining(currentUser) - myOtherBid;
+  const myOtherBid = (state.bids[otherSlot]||{})[currentUser];
 
-  if (amount > coinsAvailable) { showToast(`Not enough coins! Only ${coinsAvailable} left after your other bid.`,'error'); return; }
+  // Enforce: can only back one team per match
+  if (myOtherBid !== undefined) {
+    showToast(`You've already bid on the other team! Switch first if you want to change.`,'error');
+    return;
+  }
+
+  const coinsAvailable = getCoinsRemaining(currentUser);
+  if (amount > coinsAvailable) { showToast(`Not enough coins! Only ${coinsAvailable} available.`,'error'); return; }
 
   if (!state.bids[slotId]) state.bids[slotId] = {};
   state.bids[slotId][currentUser] = amount;
@@ -535,6 +550,16 @@ window.lockLiveBid = async function(slotId) {
   state.bidTimestamps[slotId][currentUser] = Date.now();
   await saveToFirebase({ bids: state.bids, bidTimestamps: state.bidTimestamps });
   showToast(`Bid locked: ${amount} coins 🔒`,'success');
+  renderAuctionPhase();
+};
+
+// Clears your bid on one team so you can re-bid on the other instead — never lets you hold both
+window.switchLiveBid = async function(slotId) {
+  if (!confirm('Switch teams? Your current bid will be cleared so you can bid on the other team instead.')) return;
+  if (state.bids[slotId]) delete state.bids[slotId][currentUser];
+  if (state.bidTimestamps && state.bidTimestamps[slotId]) delete state.bidTimestamps[slotId][currentUser];
+  await saveToFirebase({ bids: state.bids, bidTimestamps: state.bidTimestamps });
+  showToast('Bid cleared — pick your team!', '');
   renderAuctionPhase();
 };
 
@@ -901,11 +926,12 @@ function renderRules() {
       <p>The more teams you own, the more matches you're involved in — and the more chances you get to <strong>steal</strong> and climb the leaderboard. Someone with 1 team has 1 shot. Someone with 8 teams has 8 shots at stealing, plus 8 chances of getting stolen from.</p>
     </div>
     <div class="rules-block" style="border-color:rgba(255,71,87,.3)">
-      <h3>⚠️ Avoid Bidding on Both Teams in the Same Match</h3>
-      <p>It might seem safe to lock in both sides of a matchup so you "can't lose" — but it actually works against you:</p>
+      <h3>⚠️ One Team Per Match — Only</h3>
+      <p>You can only back <strong>one</strong> side of any matchup, never both. Once you lock a bid on Brazil, Germany's input locks out — you'd have to switch your bid back off Brazil first if you change your mind.</p>
+      <p>This is enforced on purpose, here's why bidding on both would work against you anyway:</p>
       <div class="rules-scoring">
         <div class="rules-score-row"><span class="score-badge neutral">1</span> You can't steal a team from yourself — owning both means no steal happens either way</div>
-        <div class="rules-score-row"><span class="score-badge neutral">2</span> You spend more coins for the same single outcome, leaving less to bid on other matches</div>
+        <div class="rules-score-row"><span class="score-badge neutral">2</span> You'd spend more coins for the same single outcome, leaving less to bid on other matches</div>
         <div class="rules-score-row"><span class="score-badge neutral">3</span> Fewer coins left means fewer teams owned overall — and fewer chances to steal elsewhere</div>
       </div>
       <p style="margin-top:10px">Choose one side per match wisely, and spread the rest of your coins across other matches instead. 🎯</p>
