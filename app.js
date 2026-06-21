@@ -1202,21 +1202,21 @@ function renderRules() {
 
       <h3>How Bidding Works</h3>
 
-       <p>Auction starts at 18:00 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
+       <p> 🏆 Auction starts at 18:00 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
       
-      <p>Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
+      <p> 🏆 Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
 
-      <p>The minimum bid that can be made is 5 coins.</p>
+      <p> 🏆 The minimum bid that can be made is 5 coins.</p>
 
-      <p>You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+      <p> 🏆 You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
 
-      <p>Once bidding closes, you see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
+      <p> 🏆 Once bidding closes, you see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
 
-      <p>You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from whom).</p>
+      <p> 🏆 You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from whom).</p>
 
-      <p>There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
+      <p> 🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
 
-        <p>After the auction closes, you don't need to do anything else, the system handles the rest. All you need to do is watch how your teams steal teams or get stolen from!</p>
+        <p> 🏆 After the auction closes, you don't need to do anything else, the system handles the rest. All you need to do is watch how your teams steal teams or get stolen from!</p>
         
     </div>
 
