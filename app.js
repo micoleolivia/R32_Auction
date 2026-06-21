@@ -257,6 +257,7 @@ function showSection(id, e) {
   if (id === 'mypicks')     renderMyPicks();
   if (id === 'leaderboard') renderLeaderboard();
   if (id === 'results')     renderResults();
+  if (id === 'trial')       initTrial();
 }
 window.showSection = showSection;
 
@@ -882,8 +883,225 @@ function toggleRevealFeed(wrap, btn) {
 }
 
 // ============================================
-// RULES
+// TRIAL RUN — self-contained sandbox, no Firebase, replayable
 // ============================================
+const TRIAL_BOT_NAMES = ['Bot Mom', 'Bot Zac', 'Bot Sean', 'Bot Patricia'];
+const TRIAL_MATCHES = [
+  { id:'t1', teamA:{ name:'Brazil', flag:'🇧🇷' },     teamB:{ name:'Croatia', flag:'🇭🇷' } },
+  { id:'t2', teamA:{ name:'Argentina', flag:'🇦🇷' },   teamB:{ name:'Japan', flag:'🇯🇵' } },
+  { id:'t3', teamA:{ name:'Portugal', flag:'🇵🇹' },    teamB:{ name:'Senegal', flag:'🇸🇳' } },
+];
+const TRIAL_BID_SECONDS    = 25;
+const TRIAL_REVEAL_SECONDS = 15;
+
+let trial = null; // { coins, matchIndex, phase, phaseStartedAt, bids:{teamA,teamB or null}, myBid:{slot,amount}|null, owners:{}, history:[] }
+let trialTickInterval = null;
+
+function initTrial() {
+  // Only start a fresh trial the first time this tab is opened — re-visiting
+  // mid-run (e.g. switching to My Squad and back) should NOT reset progress.
+  if (trial) { renderTrial(); return; }
+  startTrial();
+}
+
+function startTrial() {
+  if (trialTickInterval) clearInterval(trialTickInterval);
+  trial = {
+    coins: 100,
+    matchIndex: 0,
+    phase: 'bidding', // 'bidding' | 'reveal' | 'finished'
+    phaseStartedAt: Date.now(),
+    myBid: null, // { slot: 'A'|'B', amount }
+    botBids: {}, // generated fresh each match: { A: {name,amount}[], B: {name,amount}[] }
+    owners: [], // [{ matchId, slot, team, who }] who = 'me' or bot name or null
+    history: [], // result strings for the trial summary
+  };
+  generateTrialBotBids();
+  trialTickInterval = setInterval(trialTick, 1000);
+  renderTrial();
+}
+window.startTrial = startTrial;
+
+function generateTrialBotBids() {
+  // Each bot randomly decides to bid on A, B, both(never — same rule applies conceptually), or neither
+  const match = TRIAL_MATCHES[trial.matchIndex];
+  trial.botBids = { A: [], B: [] };
+  TRIAL_BOT_NAMES.forEach(name => {
+    const willBid = Math.random() < 0.75; // most bots bid on something
+    if (!willBid) return;
+    const side = Math.random() < 0.5 ? 'A' : 'B';
+    const amount = Math.floor(Math.random() * 35) + 5; // 5-40 coin range, feels realistic
+    trial.botBids[side].push({ name, amount });
+  });
+}
+
+function trialTick() {
+  const trialSection = document.getElementById('trial');
+  if (!trialSection || trialSection.classList.contains('hidden')) return;
+  if (!trial || trial.phase === 'finished' || trial.phase === 'not_started') return;
+
+  renderTrialTimer();
+  const total = trial.phase === 'bidding' ? TRIAL_BID_SECONDS : TRIAL_REVEAL_SECONDS;
+  const elapsed = (Date.now() - trial.phaseStartedAt) / 1000;
+  if (elapsed >= total) {
+    if (trial.phase === 'bidding') closeTrialBidding();
+    else advanceTrialMatch();
+  }
+}
+
+function closeTrialBidding() {
+  const match = TRIAL_MATCHES[trial.matchIndex];
+  ['A','B'].forEach(slot => {
+    const allBids = [...trial.botBids[slot]];
+    if (trial.myBid && trial.myBid.slot === slot) allBids.push({ name:'me', amount: trial.myBid.amount });
+    if (allBids.length === 0) { trial.owners.push({ matchId: match.id, slot, team: match[`team${slot}`], who: null }); return; }
+    allBids.sort((a,b) => b.amount - a.amount);
+    const winner = allBids[0];
+    if (winner.name === 'me') trial.coins -= winner.amount;
+    trial.owners.push({ matchId: match.id, slot, team: match[`team${slot}`], who: winner.name, amount: winner.amount });
+  });
+  trial.phase = 'reveal';
+  trial.phaseStartedAt = Date.now();
+  renderTrial();
+}
+
+function advanceTrialMatch() {
+  const nextIndex = trial.matchIndex + 1;
+  if (nextIndex >= TRIAL_MATCHES.length) {
+    trial.phase = 'finished';
+    renderTrial();
+    return;
+  }
+  trial.matchIndex = nextIndex;
+  trial.phase = 'bidding';
+  trial.phaseStartedAt = Date.now();
+  trial.myBid = null;
+  generateTrialBotBids();
+  renderTrial();
+}
+
+window.lockTrialBid = function(slot) {
+  const input = document.getElementById(`trial-bid-${slot}`);
+  const amount = parseInt(input?.value);
+  if (isNaN(amount) || amount < 0) { showToast('Enter a valid bid (0 or more)!','error'); return; }
+  if (amount > trial.coins) { showToast(`Not enough coins! Only ${trial.coins} available.`,'error'); return; }
+  trial.myBid = { slot, amount };
+  showToast(`Practice bid locked: ${amount} coins 🔒`,'success');
+  renderTrialPhase();
+};
+
+window.switchTrialBid = function() {
+  trial.myBid = null;
+  showToast('Bid cleared — pick your team!', '');
+  renderTrialPhase();
+};
+
+function renderTrial() {
+  const container = document.getElementById('trial-container');
+  if (!container) return;
+
+  if (trial.phase === 'finished') {
+    const myTeams = trial.owners.filter(o => o.who === 'me');
+    container.innerHTML = `
+      <div class="live-waiting">
+        <div class="live-waiting-icon">🏁</div>
+        <div class="live-waiting-title">Trial Complete!</div>
+        <div class="live-waiting-sub">You ended up with ${myTeams.length} team${myTeams.length === 1 ? '' : 's'} and ${trial.coins} coins left</div>
+        ${myTeams.length > 0 ? `<div class="trial-summary-teams">${myTeams.map(t => `<span class="team-badge team-badge-green">${t.team.flag} ${t.team.name}</span>`).join('')}</div>` : ''}
+        <button class="cta-btn" style="margin-top:24px" onclick="startTrial()">🔁 Replay Trial</button>
+      </div>`;
+    return;
+  }
+
+  const match = TRIAL_MATCHES[trial.matchIndex];
+  container.innerHTML = `
+    <div class="live-progress">Practice Match ${trial.matchIndex + 1} of ${TRIAL_MATCHES.length}</div>
+    <div class="live-coins">🪙 ${trial.coins} coins available</div>
+    <div class="live-matchup">
+      <div class="live-team"><div class="live-flag">${match.teamA.flag}</div><div class="live-name">${match.teamA.name}</div></div>
+      <div class="live-vs">VS</div>
+      <div class="live-team"><div class="live-flag">${match.teamB.flag}</div><div class="live-name">${match.teamB.name}</div></div>
+    </div>
+    <div id="trial-timer-zone"></div>
+    <div id="trial-phase-zone"></div>
+    <button class="bid-remove-btn" style="margin:20px auto;display:block" onclick="forceAdvanceTrial()">⏭ Skip ahead (practice only)</button>
+  `;
+  renderTrialTimer();
+  renderTrialPhase();
+}
+
+window.forceAdvanceTrial = function() {
+  if (trial.phase === 'bidding') closeTrialBidding();
+  else advanceTrialMatch();
+};
+
+function renderTrialTimer() {
+  const zone = document.getElementById('trial-timer-zone');
+  if (!zone || !trial) return;
+  const total = trial.phase === 'bidding' ? TRIAL_BID_SECONDS : TRIAL_REVEAL_SECONDS;
+  const elapsed = (Date.now() - trial.phaseStartedAt) / 1000;
+  const remaining = Math.max(0, Math.ceil(total - elapsed));
+  const pct = Math.max(0, Math.min(100, (remaining/total)*100));
+  zone.innerHTML = `
+    <div class="live-timer-bar-wrap"><div class="live-timer-bar" style="width:${pct}%; background:${trial.phase==='bidding'?'var(--gold)':'var(--teal)'}"></div></div>
+    <div class="live-timer-num">${remaining}s</div>`;
+}
+
+function renderTrialPhase() {
+  const zone = document.getElementById('trial-phase-zone');
+  if (!zone || !trial) return;
+  const match = TRIAL_MATCHES[trial.matchIndex];
+
+  if (trial.phase === 'bidding') {
+    const inputA = document.getElementById('trial-bid-A');
+    const inputB = document.getElementById('trial-bid-B');
+    const userIsTyping = (inputA && document.activeElement === inputA) || (inputB && document.activeElement === inputB);
+    if (userIsTyping && !trial.myBid) return;
+
+    function box(slot, team) {
+      if (trial.myBid && trial.myBid.slot === slot) {
+        return `<div class="live-bid-locked">✅ Bid locked: ${trial.myBid.amount} coins</div>
+                <button class="bid-remove-btn" style="margin-top:8px;width:100%" onclick="switchTrialBid()">↺ Switch team</button>`;
+      } else if (trial.myBid && trial.myBid.slot !== slot) {
+        return `<div class="live-bid-disabled">🚫 You've already bid on the other team</div>`;
+      } else {
+        return `<div class="bid-row"><input type="number" min="0" max="${trial.coins}" id="trial-bid-${slot}" class="bid-input" placeholder="0"/>
+                 <button class="bid-btn" onclick="lockTrialBid('${slot}')">Lock 🔒</button></div>`;
+      }
+    }
+
+    zone.innerHTML = `
+      <div class="live-bid-title">🔒 Place your practice bid${trial.myBid ? ' — locked in!' : ''}</div>
+      <div class="live-bid-grid">
+        <div class="live-bid-box"><div class="live-bid-team">${match.teamA.flag} ${match.teamA.name}</div>${box('A', match.teamA)}</div>
+        <div class="live-bid-box"><div class="live-bid-team">${match.teamB.flag} ${match.teamB.name}</div>${box('B', match.teamB)}</div>
+      </div>
+      <div class="live-bid-hint">This is practice — bids are blind here too, against 4 simulated bidders. You can only back ONE team per match.</div>`;
+  } else if (trial.phase === 'reveal') {
+    const resultsForMatch = trial.owners.filter(o => o.matchId === match.id);
+    let resultHTML = '';
+    resultsForMatch.forEach(({ slot, team, who, amount }) => {
+      if (who === 'me') {
+        resultHTML += `<div class="live-result-row live-result-win">🎉 You won ${team.flag} ${team.name}! (${amount} coins)</div>`;
+      } else if (trial.myBid && trial.myBid.slot === slot) {
+        resultHTML += `<div class="live-result-row live-result-lose">❌ You lost ${team.flag} ${team.name}</div>`;
+      } else {
+        resultHTML += `<div class="live-result-row live-result-skip">⏭️ You didn't bid on ${team.flag} ${team.name}</div>`;
+      }
+    });
+    const nextMatch = TRIAL_MATCHES[trial.matchIndex+1];
+    const nextHTML = nextMatch
+      ? `<div class="live-next-preview">⏭️ Next up: ${nextMatch.teamA.flag} ${nextMatch.teamA.name} vs ${nextMatch.teamB.flag} ${nextMatch.teamB.name}</div>`
+      : `<div class="live-next-preview">🏁 That was the last practice match!</div>`;
+    zone.innerHTML = `
+      <div class="live-reveal-title">Results</div>
+      ${resultHTML}
+      <div class="live-balance">🪙 ${trial.coins} coins remaining</div>
+      ${nextHTML}`;
+  }
+}
+
+
 function renderRules() {
   const container = document.getElementById('rules-container');
   if (!container) return;
