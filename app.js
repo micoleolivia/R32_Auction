@@ -727,30 +727,44 @@ function renderLeaderboard() {
     return;
   }
 
-  // Results exist — show REVEALED counts only, NOT true totals.
-  // A team becomes "known" to belong to someone the moment it WINS a match (since that's
-  // what triggers the reveal feed entry). Teams sitting unplayed stay completely secret,
-  // even though they still count toward that player's real total behind the scenes.
+  // Results exist — show REVEALED teams only, NOT true totals.
+  // A team's ownership becomes known the moment it plays a match (whether it won or lost) —
+  // because the reveal feed names the owner either as the thief or the victim.
+  // Teams that haven't played yet stay completely invisible, even though they still
+  // count toward that player's real total behind the scenes.
   const revealedSlotIds = new Set();
-  Object.values(state.matchResults).forEach(r => revealedSlotIds.add(r.winnerSlot));
+  Object.values(state.matchResults).forEach(r => {
+    revealedSlotIds.add(r.winnerSlot);
+    revealedSlotIds.add(r.loserSlot);
+  });
 
-  const revealedTotals = PLAYERS.map(p => {
+  const revealedData = PLAYERS.map(p => {
     const col = getCollection(p.name);
-    const knownCount = col.filter(c => revealedSlotIds.has(c.slotId)).length;
-    return { ...p, known: knownCount };
+    const knownTeams = col.filter(c => revealedSlotIds.has(c.slotId));
+    return { ...p, known: knownTeams.length, knownTeams };
   }).sort((a,b) => b.known - a.known);
 
   const medals  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
   const classes = ['first','second','third','',''];
 
-  revealedTotals.forEach((player, i) => {
+  revealedData.forEach((player, i) => {
     const row = document.createElement('div');
     row.className = `leaderboard-row ${classes[i]||''}`;
+
+    const badges = player.knownTeams.map(({ slotId, how }) => {
+      const slot = getSlot(slotId);
+      const isElim = Object.values(state.matchResults).some(r => r.loserSlot === slotId);
+      const cls = how === 'original' ? 'team-badge-green' : 'team-badge-purple';
+      const label = how === 'original' ? 'owned' : how === 'stolen' ? 'stolen' : 'collected';
+      return `<span class="team-badge ${cls}" style="${isElim?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId} · ${label}</span>`;
+    }).join('');
+
     row.innerHTML = `
       <div class="lb-position">${medals[i]}</div>
       <div class="lb-info">
         <div class="lb-name">${player.icon} ${player.name}</div>
         <div class="lb-type">could have more in secret 🤫</div>
+        ${badges ? `<div class="lb-teams">${badges}</div>` : ''}
       </div>
       <div>
         <div class="lb-points" style="color:var(--gold)">${player.known}</div>
