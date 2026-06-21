@@ -573,8 +573,9 @@ function renderMyPicks() {
     const slot = getSlot(slotId);
     const isEliminated = Object.values(state.matchResults).some(r => r.loserSlot === slotId);
     const card = document.createElement('div');
-    card.className = 'squad-card' + (isEliminated ? ' squad-eliminated' : '') + (how === 'original' ? ' squad-original' : ' squad-stolen');
-    const howLabel = how === 'original' ? '🟢 Bought' : how === 'stolen' ? '🟣 Stolen' : '🟣 Collected';
+    const squadCls = how === 'original' ? ' squad-original' : how === 'stolen' ? ' squad-stolen' : ' squad-collected';
+    card.className = 'squad-card' + (isEliminated ? ' squad-eliminated' : '') + squadCls;
+    const howLabel = how === 'original' ? '🟢 Bought' : how === 'stolen' ? '🟣 Stolen' : '🔵 Collected';
     card.innerHTML = `
       <div class="squad-flag">${slot?.flag||'🏳️'}</div>
       <div class="squad-name">${slot?.name||slotId}</div>
@@ -751,12 +752,21 @@ function renderLeaderboard() {
     const row = document.createElement('div');
     row.className = `leaderboard-row ${classes[i]||''}`;
 
-    const badges = player.knownTeams.map(({ slotId, how }) => {
+    const isElim = (slotId) => Object.values(state.matchResults).some(r => r.loserSlot === slotId);
+
+    const ownedBadges = player.knownTeams.filter(t => t.how === 'original').map(({ slotId }) => {
       const slot = getSlot(slotId);
-      const isElim = Object.values(state.matchResults).some(r => r.loserSlot === slotId);
-      const cls = how === 'original' ? 'team-badge-green' : 'team-badge-purple';
-      const label = how === 'original' ? 'owned' : how === 'stolen' ? 'stolen' : 'collected';
-      return `<span class="team-badge ${cls}" style="${isElim?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId} · ${label}</span>`;
+      return `<span class="team-badge team-badge-green" style="${isElim(slotId)?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
+    }).join('');
+
+    const stolenBadges = player.knownTeams.filter(t => t.how === 'stolen').map(({ slotId }) => {
+      const slot = getSlot(slotId);
+      return `<span class="team-badge team-badge-purple" style="${isElim(slotId)?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
+    }).join('');
+
+    const collectedBadges = player.knownTeams.filter(t => t.how === 'collected').map(({ slotId }) => {
+      const slot = getSlot(slotId);
+      return `<span class="team-badge team-badge-blue" style="${isElim(slotId)?'opacity:.4':''}">${slot?.flag||'🏳️'} ${slot?.name||slotId}</span>`;
     }).join('');
 
     row.innerHTML = `
@@ -764,7 +774,9 @@ function renderLeaderboard() {
       <div class="lb-info">
         <div class="lb-name">${player.icon} ${player.name}</div>
         <div class="lb-type">could have more in secret 🤫</div>
-        ${badges ? `<div class="lb-teams">${badges}</div>` : ''}
+        ${ownedBadges ? `<div class="lb-teams"><span class="lb-teams-label">🟢 Owned:</span>${ownedBadges}</div>` : ''}
+        ${stolenBadges ? `<div class="lb-teams"><span class="lb-teams-label">🟣 Stolen:</span>${stolenBadges}</div>` : ''}
+        ${collectedBadges ? `<div class="lb-teams"><span class="lb-teams-label">🔵 Collected:</span>${collectedBadges}</div>` : ''}
       </div>
       <div>
         <div class="lb-points" style="color:var(--gold)">${player.known}</div>
@@ -830,6 +842,20 @@ function renderRules() {
         <div class="rules-score-row"><span class="score-badge neutral">❌ Lose</span> Your team loses to an unowned team → your team disappears, nobody gets it</div>
         <div class="rules-score-row"><span class="score-badge neutral">⚽ Self</span> You own both teams in a match → your winner stays, your loser is just eliminated</div>
       </div>
+    </div>
+    <div class="rules-block">
+      <h3>📈 More Teams = More Chances</h3>
+      <p>The more teams you own, the more matches you're involved in — and the more chances you get to <strong>steal</strong> and climb the leaderboard. Someone with 1 team has 1 shot. Someone with 8 teams has 8 shots at stealing, plus 8 chances of getting stolen from.</p>
+    </div>
+    <div class="rules-block" style="border-color:rgba(255,71,87,.3)">
+      <h3>⚠️ Avoid Bidding on Both Teams in the Same Match</h3>
+      <p>It might seem safe to lock in both sides of a matchup so you "can't lose" — but it actually works against you:</p>
+      <div class="rules-scoring">
+        <div class="rules-score-row"><span class="score-badge neutral">1</span> You can't steal a team from yourself — owning both means no steal happens either way</div>
+        <div class="rules-score-row"><span class="score-badge neutral">2</span> You spend more coins for the same single outcome, leaving less to bid on other matches</div>
+        <div class="rules-score-row"><span class="score-badge neutral">3</span> Fewer coins left means fewer teams owned overall — and fewer chances to steal elsewhere</div>
+      </div>
+      <p style="margin-top:10px">Choose one side per match wisely, and spread the rest of your coins across other matches instead. 🎯</p>
     </div>
     <div class="rules-block">
       <h3>🏆 How to Win</h3>
