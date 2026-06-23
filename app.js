@@ -904,18 +904,15 @@ function renderLeaderboard() {
   const graveyardEntries = [];
   Object.entries(state.matchResults).forEach(([matchId, result]) => {
     const loserSlot = result.loserSlot;
-    const originalOwner = result.loserOriginalOwner;
-    // A team is in the graveyard if:
-    // - it was owned at time of match (loserOriginalOwner is set)
-    // - nobody currently holds it (it wasn't stolen — it was lost to an unowned team or self-match)
+    // Use saved loserOriginalOwner if available, otherwise fall back to state.owners
+    // (state.owners records who won the auction, even if they later lost the team)
+    const originalOwner = result.loserOriginalOwner || state.owners[loserSlot]?.username || null;
     const currentlyHeld = getCurrentHolder(loserSlot);
     if (originalOwner && !currentlyHeld) {
       const slot = getSlot(loserSlot);
       graveyardEntries.push({ slot, originalOwner });
     }
-    // Also add unowned teams that were eliminated (loser was unowned and winner was unowned)
     if (!originalOwner && !getCurrentHolder(result.winnerSlot) && !currentlyHeld) {
-      // Both unowned — add loser to graveyard as truly unowned
       const slot = getSlot(loserSlot);
       graveyardEntries.push({ slot, originalOwner: null });
     }
