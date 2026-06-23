@@ -29,10 +29,10 @@ const PLAYERS = [
 ];
 
 const STARTING_COINS = 100;
-const MIN_BID         = 5;   // smallest amount you can actually bid (0 = no bid / skip)
-const COUNTDOWN_SECONDS = 10; // pre-auction "get ready" countdown shown to everyone
-const BID_SECONDS     = 20;  // blind bid window
-const REVEAL_SECONDS  = 10;  // result + next match preview window
+const MIN_BID         = 5;
+const COUNTDOWN_SECONDS = 10;
+const BID_SECONDS     = 20;
+const REVEAL_SECONDS  = 10;
 
 // ============================================
 // ROUND OF 32 SLOTS
@@ -72,7 +72,6 @@ const slots = [
   { id:'s32', name:'Group L Runner-up', flag:'🏳️', confirmed:false, placeholder:'Ghana or Panama',         group:'L' },
 ];
 
-// Each match opens TWO simultaneous blind slot-auctions (one per team)
 const r32Matches = [
   { id:'r32-1',  slotA:'s1',  slotB:'s26' },
   { id:'r32-2',  slotA:'s13', slotB:'s20' },
@@ -97,24 +96,23 @@ const r32Matches = [
 // ============================================
 let currentUser = null;
 let state = {
-  // Live auction engine state
   liveAuction: {
-    status: 'not_started',  // 'not_started' | 'countdown' | 'bidding' | 'reveal' | 'finished'
-    matchIndex: 0,           // which match in r32Matches we're on
-    phaseStartedAt: null,    // ISO timestamp when current phase began
+    status: 'not_started',
+    matchIndex: 0,
+    phaseStartedAt: null,
   },
-  bids:         {},  // bids[slotId][username] = amount  (blind — only revealed after window closes)
-  bidTimestamps:{},  // bidTimestamps[slotId][username] = Date.now() when locked — breaks ties
-  owners:       {},  // owners[slotId] = { username, coins }
-  collection:   {},  // collection[username] = [{ slotId, how:'original'|'stolen'|'collected' }]
-  matchResults: {},  // matchResults[matchId] = { winnerSlot, loserSlot }
-  slotOverrides:{},  // slotOverrides[slotId] = { name, flag }
-  revealFeed:   [],  // [{ matchId, ts, msg }] — public feed of what's been revealed so far
+  bids:         {},
+  bidTimestamps:{},
+  owners:       {},
+  collection:   {},
+  matchResults: {},
+  slotOverrides:{},
+  revealFeed:   [],
 };
 
 let unsubscribe = null;
 let tickInterval = null;
-let lastRenderedKey = null;  // tracks matchIndex+status to avoid redundant full re-renders
+let lastRenderedKey = null;
 
 // ============================================
 // FIREBASE
@@ -269,8 +267,6 @@ window.showSection = showSection;
 // ============================================
 // LIVE AUCTION ENGINE
 // ============================================
-
-// Ticker runs every 500ms to check phase transitions (admin drives state changes; everyone reads countdown)
 function startTicker() {
   if (tickInterval) clearInterval(tickInterval);
   tickInterval = setInterval(() => {
@@ -278,14 +274,11 @@ function startTicker() {
     if (auctionSection && !auctionSection.classList.contains('hidden')) {
       renderAuctionTimer();
       renderCountdownNumber();
-      // Only admin's browser drives automatic phase transitions to avoid race conditions
       if (currentUser === 'Micole') checkPhaseTransition();
     }
   }, 1000);
 
-  // Safari/iOS throttles background tabs and can delay Firestore's websocket —
-  // force an immediate re-fetch + re-render the moment the app becomes visible/focused
-  // again, so the screen catches up instantly instead of waiting for the next snapshot.
+  // Safari/iOS catch-up fix — force re-fetch when tab becomes visible again
   document.addEventListener('visibilitychange', forceCatchUp);
   window.addEventListener('focus', forceCatchUp);
   window.addEventListener('pageshow', forceCatchUp);
@@ -294,7 +287,7 @@ function startTicker() {
 async function forceCatchUp() {
   if (document.visibilityState && document.visibilityState !== 'visible') return;
   if (!currentUser) return;
-  lastRenderedKey = null; // bust the render cache so the next renderAuction() does a full rebuild
+  lastRenderedKey = null;
   try {
     const fresh = await loadFromFirebase();
     state.liveAuction   = fresh.liveAuction   || state.liveAuction;
@@ -304,8 +297,8 @@ async function forceCatchUp() {
     state.collection    = fresh.collection    || state.collection;
     state.matchResults  = fresh.matchResults  || state.matchResults;
     state.slotOverrides = fresh.slotOverrides || state.slotOverrides;
-    state.revealFeed     = fresh.revealFeed   || state.revealFeed;
-  } catch (e) { /* network hiccup — listener will catch up on its own shortly */ }
+    state.revealFeed    = fresh.revealFeed    || state.revealFeed;
+  } catch(e) { /* listener will catch up shortly */ }
   refreshAll();
 }
 
@@ -346,12 +339,10 @@ async function closeBiddingPhase() {
   const match = r32Matches[la.matchIndex];
   if (!match) return;
 
-  // Resolve both slot auctions for this match
   [match.slotA, match.slotB].forEach(slotId => {
-    if (state.owners[slotId]) return; // already owned somehow
+    if (state.owners[slotId]) return;
     const bids = state.bids[slotId] || {};
     const timestamps = (state.bidTimestamps && state.bidTimestamps[slotId]) || {};
-    // Highest bid wins; ties go to whoever locked their bid in first (fastest finger)
     const entries = Object.entries(bids).sort(([userA,a],[userB,b]) => {
       if (b !== a) return b - a;
       return (timestamps[userA] || 0) - (timestamps[userB] || 0);
@@ -382,7 +373,6 @@ async function advanceToNextMatch() {
   renderAuction();
 }
 
-// Admin manual override — skip to next phase early
 window.forceAdvance = async function() {
   const la = state.liveAuction;
   if (la.status === 'bidding') await closeBiddingPhase();
@@ -399,12 +389,10 @@ function renderAuction() {
   const isAdmin = currentUser === 'Micole';
   const renderKey = `${la.status}-${la.matchIndex}`;
 
-  // If only bids changed (not phase/match), just refresh the phase content — avoids full DOM rebuild on every keystroke/bid from other players
   if (renderKey === lastRenderedKey && (la.status === 'bidding' || la.status === 'reveal')) {
     renderAuctionPhase();
     return;
   }
-  // Countdown re-renders every second via renderAuctionTimer's own update, so just refresh the number there
   if (renderKey === lastRenderedKey && la.status === 'countdown') {
     renderCountdownNumber();
     return;
@@ -507,16 +495,13 @@ function renderAuctionPhase() {
   const match = r32Matches[la.matchIndex];
 
   if (la.status === 'bidding') {
-    // Don't wipe out an in-progress typed bid if this re-render was triggered
-    // by someone else's bid landing via Firebase (only skip if I haven't already locked)
     const myBidAExisting = (state.bids[match.slotA]||{})[currentUser];
     const myBidBExisting = (state.bids[match.slotB]||{})[currentUser];
     const inputA = document.getElementById(`live-bid-${match.slotA}`);
     const inputB = document.getElementById(`live-bid-${match.slotB}`);
     const userIsTyping = (inputA && document.activeElement === inputA) || (inputB && document.activeElement === inputB);
-    if (userIsTyping && myBidAExisting === undefined && myBidBExisting === undefined) {
-      return; // preserve their typing, nothing they need to see has changed yet
-    }
+    if (userIsTyping && myBidAExisting === undefined && myBidBExisting === undefined) return;
+
     const coinsLeft = getCoinsRemaining(currentUser);
     const myBidA = (state.bids[match.slotA]||{})[currentUser];
     const myBidB = (state.bids[match.slotB]||{})[currentUser];
@@ -526,11 +511,9 @@ function renderAuctionPhase() {
 
     function buildBidBox(slot, slotId, myBid, otherBid) {
       if (myBid !== undefined) {
-        // This is the team they've locked in
         return `<div class="live-bid-locked">✅ Bid locked: ${myBid} coins</div>
                 <button class="bid-remove-btn" style="margin-top:8px;width:100%" onclick="switchLiveBid('${slotId}')">↺ Switch team</button>`;
       } else if (otherBid !== undefined) {
-        // They've bid on the OTHER team — this one is locked out
         return `<div class="live-bid-disabled">🚫 You've already bid on the other team</div>`;
       } else {
         return `<div class="bid-row"><input type="number" min="0" max="${coinsLeft}" id="live-bid-${slotId}" class="bid-input" placeholder="0"/>
@@ -599,7 +582,6 @@ window.lockLiveBid = async function(slotId) {
   const otherSlot = match.slotA === slotId ? match.slotB : match.slotA;
   const myOtherBid = (state.bids[otherSlot]||{})[currentUser];
 
-  // Enforce: can only back one team per match
   if (myOtherBid !== undefined) {
     showToast(`You've already bid on the other team! Switch first if you want to change.`,'error');
     return;
@@ -618,7 +600,6 @@ window.lockLiveBid = async function(slotId) {
   renderAuctionPhase();
 };
 
-// Clears your bid on one team so you can re-bid on the other instead — never lets you hold both
 window.switchLiveBid = async function(slotId) {
   if (!confirm('Switch teams? Your current bid will be cleared so you can bid on the other team instead.')) return;
   if (state.bids[slotId]) delete state.bids[slotId][currentUser];
@@ -629,7 +610,7 @@ window.switchLiveBid = async function(slotId) {
 };
 
 // ============================================
-// ADMIN: PLACEHOLDER OVERRIDES (pre-auction)
+// ADMIN: PLACEHOLDER OVERRIDES
 // ============================================
 window.confirmSlotTeam = async function(slotId) {
   const name = document.getElementById(`override-name-${slotId}`)?.value?.trim();
@@ -659,7 +640,7 @@ function renderMyPicks() {
   summary.innerHTML = `
     <div class="squad-stat"><div class="squad-stat-val">💰 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
     <div class="squad-stat"><div class="squad-stat-val">💰 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
-    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)"> ${myCol.length}</div><div class="squad-stat-lbl">total teams bought</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">${myCol.length}</div><div class="squad-stat-lbl">total teams bought</div></div>
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
   container.appendChild(summary);
 
@@ -709,11 +690,10 @@ function renderResults() {
   grid.className = 'results-grid';
 
   r32Matches.forEach(match => {
-    const slotA   = getSlot(match.slotA);
-    const slotB   = getSlot(match.slotB);
-    const result  = state.matchResults[match.id];
-
-    const card = document.createElement('div');
+    const slotA  = getSlot(match.slotA);
+    const slotB  = getSlot(match.slotB);
+    const result = state.matchResults[match.id];
+    const card   = document.createElement('div');
     card.className = 'result-card';
 
     if (result) {
@@ -726,7 +706,6 @@ function renderResults() {
           <button class="bid-remove-btn" style="margin-top:8px" onclick="clearResult('${match.id}')">↩ Undo</button>
         </div>`;
     } else {
-      // Deliberately no owner names shown here — ownership stays secret until a result locks it in
       card.innerHTML = `
         <div class="result-teams">
           <div class="result-team"><span>${slotA?.flag||'🏳️'} ${slotA?.name||'TBD'}</span></div>
@@ -748,9 +727,11 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
   const loser  = getSlot(loserSlot);
   if (!confirm(`${winner?.name} beat ${loser?.name}?`)) return;
 
-  state.matchResults[matchId] = { winnerSlot, loserSlot };
+  // Record who owned the loser BEFORE removing them from collection
   const winnerHolder = getCurrentHolder(winnerSlot);
   const loserHolder  = getCurrentHolder(loserSlot);
+
+  state.matchResults[matchId] = { winnerSlot, loserSlot, loserOriginalOwner: loserHolder || null };
 
   if (!state.revealFeed) state.revealFeed = [];
   const feedEntry = { matchId, ts: new Date().toISOString() };
@@ -786,7 +767,6 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
   }
 
   state.revealFeed.unshift(feedEntry);
-
   await saveToFirebase({ matchResults: state.matchResults, collection: state.collection, revealFeed: state.revealFeed });
   renderResults(); renderLeaderboard(); renderMyPicks();
 };
@@ -809,7 +789,7 @@ function renderLeaderboard() {
 
   const hasResults = Object.keys(state.matchResults).length > 0;
 
-  // ===== REVEAL FEED — shown first, capped at 3, expandable =====
+  // REVEAL FEED — top, capped at 3, expandable
   if (state.revealFeed && state.revealFeed.length > 0) {
     const feedTitle = document.createElement('div');
     feedTitle.className = 'auction-section-title';
@@ -820,13 +800,11 @@ function renderLeaderboard() {
     feedWrap.className = 'reveal-feed';
     feedWrap.id = 'reveal-feed-wrap';
     container.appendChild(feedWrap);
-
     renderRevealFeedItems(feedWrap, false);
 
     if (state.revealFeed.length > 3) {
       const expandBtn = document.createElement('button');
       expandBtn.className = 'reveal-feed-expand-btn';
-      expandBtn.id = 'reveal-feed-expand-btn';
       expandBtn.textContent = `Show all ${state.revealFeed.length} updates ▾`;
       expandBtn.onclick = () => toggleRevealFeed(feedWrap, expandBtn);
       container.appendChild(expandBtn);
@@ -838,7 +816,6 @@ function renderLeaderboard() {
   }
 
   if (!hasResults) {
-    // Before any World Cup results — total secrecy, just show everyone at 0
     const intro = document.createElement('div');
     intro.className = 'leaderboard-empty';
     intro.innerHTML = 'Ownership is secret! The leaderboard activates once real match results are entered, that\'s when steals/collections are revealed.';
@@ -862,11 +839,6 @@ function renderLeaderboard() {
     return;
   }
 
-  // Results exist — show REVEALED teams only, NOT true totals.
-  // A team's ownership becomes known the moment it plays a match (whether it won or lost) —
-  // because the reveal feed names the owner either as the thief or the victim.
-  // Teams that haven't played yet stay completely invisible, even though they still
-  // count toward that player's real total behind the scenes.
   const revealedSlotIds = new Set();
   Object.values(state.matchResults).forEach(r => {
     revealedSlotIds.add(r.winnerSlot);
@@ -923,9 +895,60 @@ function renderLeaderboard() {
       </div>`;
     container.appendChild(row);
   });
+
+  // ============================================
+  // GRAVEYARD — teams eliminated with no one gaining them
+  // Only shows teams where the loser was owned and nobody stole them
+  // (i.e. lost to an unowned team, or self-match elimination)
+  // ============================================
+  const graveyardEntries = [];
+  Object.entries(state.matchResults).forEach(([matchId, result]) => {
+    const loserSlot = result.loserSlot;
+    const originalOwner = result.loserOriginalOwner;
+    // A team is in the graveyard if:
+    // - it was owned at time of match (loserOriginalOwner is set)
+    // - nobody currently holds it (it wasn't stolen — it was lost to an unowned team or self-match)
+    const currentlyHeld = getCurrentHolder(loserSlot);
+    if (originalOwner && !currentlyHeld) {
+      const slot = getSlot(loserSlot);
+      graveyardEntries.push({ slot, originalOwner });
+    }
+    // Also add unowned teams that were eliminated (loser was unowned and winner was unowned)
+    if (!originalOwner && !getCurrentHolder(result.winnerSlot) && !currentlyHeld) {
+      // Both unowned — add loser to graveyard as truly unowned
+      const slot = getSlot(loserSlot);
+      graveyardEntries.push({ slot, originalOwner: null });
+    }
+  });
+
+  if (graveyardEntries.length > 0) {
+    const gDivider = document.createElement('div');
+    gDivider.style.cssText = 'height:1px;background:var(--border);margin:28px 0;';
+    container.appendChild(gDivider);
+
+    const gTitle = document.createElement('div');
+    gTitle.className = 'auction-section-title';
+    gTitle.style.color = 'var(--text3)';
+    gTitle.textContent = '💀 Eliminated';
+    container.appendChild(gTitle);
+
+    const gSubtitle = document.createElement('div');
+    gSubtitle.style.cssText = 'font-size:.78rem;color:var(--text3);margin-bottom:14px;';
+    gSubtitle.textContent = 'These teams were knocked out and nobody gained them.';
+    container.appendChild(gSubtitle);
+
+    const gGrid = document.createElement('div');
+    gGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+    graveyardEntries.forEach(({ slot, originalOwner }) => {
+      const badge = document.createElement('span');
+      badge.className = 'graveyard-badge';
+      badge.innerHTML = `${slot?.flag||'🏳️'} ${slot?.name||'?'}${originalOwner ? ` <span class="graveyard-owner">was ${originalOwner}'s</span>` : ''}`;
+      gGrid.appendChild(badge);
+    });
+    container.appendChild(gGrid);
+  }
 }
 
-// Renders feed items into a wrap element, either capped to 3 (latest first) or all
 function renderRevealFeedItems(wrap, showAll) {
   wrap.innerHTML = '';
   const items = showAll ? state.revealFeed : state.revealFeed.slice(0, 3);
@@ -947,22 +970,21 @@ function toggleRevealFeed(wrap, btn) {
 }
 
 // ============================================
-// TRIAL RUN — self-contained sandbox, no Firebase, replayable
+// TRIAL RUN
 // ============================================
 const TRIAL_BOT_NAMES = ['Bot Eve', 'Bot Zac', 'Bot Sean', 'Bot Patricia'];
 const TRIAL_MATCHES = [
-  { id:'t1', teamA:{ name:'Brazil', flag:'🇧🇷' },     teamB:{ name:'Croatia', flag:'🇭🇷' } },
-  { id:'t2', teamA:{ name:'Argentina', flag:'🇦🇷' },   teamB:{ name:'Japan', flag:'🇯🇵' } },
-  { id:'t3', teamA:{ name:'Portugal', flag:'🇵🇹' },    teamB:{ name:'Senegal', flag:'🇸🇳' } },
+  { id:'t1', teamA:{ name:'Brazil', flag:'🇧🇷' },   teamB:{ name:'Croatia', flag:'🇭🇷' } },
+  { id:'t2', teamA:{ name:'Argentina', flag:'🇦🇷' }, teamB:{ name:'Japan', flag:'🇯🇵' } },
+  { id:'t3', teamA:{ name:'Portugal', flag:'🇵🇹' },  teamB:{ name:'Senegal', flag:'🇸🇳' } },
 ];
 const TRIAL_BID_SECONDS    = 20;
 const TRIAL_REVEAL_SECONDS = 10;
 
-let trial = null; // { coins, matchIndex, phase, phaseStartedAt, bids:{teamA,teamB or null}, myBid:{slot,amount}|null, owners:{}, history:[] }
+let trial = null;
 let trialTickInterval = null;
 
 function initTrial() {
-  // Re-visiting mid-run (e.g. switching to My Squad and back) should NOT reset progress.
   if (trial) { renderTrial(); return; }
   renderTrialLanding();
 }
@@ -984,14 +1006,9 @@ function renderTrialLanding() {
 function startTrial() {
   if (trialTickInterval) clearInterval(trialTickInterval);
   trial = {
-    coins: 100,
-    matchIndex: 0,
-    phase: 'bidding', // 'bidding' | 'reveal' | 'finished'
-    phaseStartedAt: Date.now(),
-    myBid: null, // { slot: 'A'|'B', amount }
-    botBids: {}, // generated fresh each match: { A: {name,amount}[], B: {name,amount}[] }
-    owners: [], // [{ matchId, slot, team, who }] who = 'me' or bot name or null
-    history: [], // result strings for the trial summary
+    coins: 100, matchIndex: 0, phase: 'bidding',
+    phaseStartedAt: Date.now(), myBid: null,
+    botBids: {}, owners: [], history: [],
   };
   generateTrialBotBids();
   trialTickInterval = setInterval(trialTick, 1000);
@@ -1000,23 +1017,19 @@ function startTrial() {
 window.startTrial = startTrial;
 
 function generateTrialBotBids() {
-  // Each bot randomly decides to bid on A, B, both(never — same rule applies conceptually), or neither
-  const match = TRIAL_MATCHES[trial.matchIndex];
   trial.botBids = { A: [], B: [] };
   TRIAL_BOT_NAMES.forEach(name => {
-    const willBid = Math.random() < 0.75; // most bots bid on something
-    if (!willBid) return;
-    const side = Math.random() < 0.5 ? 'A' : 'B';
-    const amount = Math.floor(Math.random() * 35) + 5; // 5-40 coin range, feels realistic
-    trial.botBids[side].push({ name, amount });
+    if (Math.random() < 0.75) {
+      const side = Math.random() < 0.5 ? 'A' : 'B';
+      trial.botBids[side].push({ name, amount: Math.floor(Math.random() * 35) + 5 });
+    }
   });
 }
 
 function trialTick() {
   const trialSection = document.getElementById('trial');
   if (!trialSection || trialSection.classList.contains('hidden')) return;
-  if (!trial || trial.phase === 'finished' || trial.phase === 'not_started') return;
-
+  if (!trial || trial.phase === 'finished') return;
   renderTrialTimer();
   const total = trial.phase === 'bidding' ? TRIAL_BID_SECONDS : TRIAL_REVEAL_SECONDS;
   const elapsed = (Date.now() - trial.phaseStartedAt) / 1000;
@@ -1044,11 +1057,7 @@ function closeTrialBidding() {
 
 function advanceTrialMatch() {
   const nextIndex = trial.matchIndex + 1;
-  if (nextIndex >= TRIAL_MATCHES.length) {
-    trial.phase = 'finished';
-    renderTrial();
-    return;
-  }
+  if (nextIndex >= TRIAL_MATCHES.length) { trial.phase = 'finished'; renderTrial(); return; }
   trial.matchIndex = nextIndex;
   trial.phase = 'bidding';
   trial.phaseStartedAt = Date.now();
@@ -1136,7 +1145,7 @@ function renderTrialPhase() {
     const userIsTyping = (inputA && document.activeElement === inputA) || (inputB && document.activeElement === inputB);
     if (userIsTyping && !trial.myBid) return;
 
-    function box(slot, team) {
+    function box(slot) {
       if (trial.myBid && trial.myBid.slot === slot) {
         return `<div class="live-bid-locked">✅ Bid locked: ${trial.myBid.amount} coins</div>
                 <button class="bid-remove-btn" style="margin-top:8px;width:100%" onclick="switchTrialBid()">↺ Switch team</button>`;
@@ -1151,8 +1160,8 @@ function renderTrialPhase() {
     zone.innerHTML = `
       <div class="live-bid-title">🔒 Place your practice bid${trial.myBid ? ' — locked in!' : ''}</div>
       <div class="live-bid-grid">
-        <div class="live-bid-box"><div class="live-bid-team">${match.teamA.flag} ${match.teamA.name}</div>${box('A', match.teamA)}</div>
-        <div class="live-bid-box"><div class="live-bid-team">${match.teamB.flag} ${match.teamB.name}</div>${box('B', match.teamB)}</div>
+        <div class="live-bid-box"><div class="live-bid-team">${match.teamA.flag} ${match.teamA.name}</div>${box('A')}</div>
+        <div class="live-bid-box"><div class="live-bid-team">${match.teamB.flag} ${match.teamB.name}</div>${box('B')}</div>
       </div>
       <div class="live-bid-hint">This is practice — bids are blind here too, against 4 simulated bidders. You can only back ONE team per match. Minimum bid is ${MIN_BID} coins (or 0 to skip).</div>`;
   } else if (trial.phase === 'reveal') {
@@ -1179,82 +1188,48 @@ function renderTrialPhase() {
   }
 }
 
-
+// ============================================
+// RULES
+// ============================================
 function renderRules() {
-
   const container = document.getElementById('rules-container');
-
   if (!container) return;
-
   container.innerHTML = `
-
     <div class="rules-block">
-
       <h3>The Gist</h3>
-
       <p>It's a live, blind auction for World Cup teams.</p>
-
       <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
-
     </div>
-
     <div class="rules-block">
-
       <h3>How Bidding Works</h3>
-
-       <p> 🏆 Auction starts at 17:30 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
-      
-      <p> 🏆 Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
-
-      <p> 🏆 The minimum bid that can be made is 5 coins.</p>
-
-      <p> 🏆 You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
-
-      <p> 🏆 Once bidding closes, you see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
-
-      <p> 🏆 You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from whom).</p>
-
-      <p> 🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
-
-        <p> 🏆 After the auction closes, you don't need to do anything else, the system handles the rest. All you need to do is watch how your teams steal teams or get stolen from!</p>
-        
+      <p>🏆 Auction starts at 17:30 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
+      <p>🏆 Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
+      <p>🏆 The minimum bid that can be made is 5 coins.</p>
+      <p>🏆 You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+      <p>🏆 Once bidding closes, you see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
+      <p>🏆 You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from whom).</p>
+      <p>🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
+      <p>🏆 After the auction closes, you don't need to do anything else — the system handles the rest. All you need to do is watch how your teams steal or get stolen from!</p>
     </div>
-
     <div class="rules-block">
-
       <h3>How to Get More Teams After the Auction</h3>
-
       <div class="rules-scoring">
-
         <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their team</div>
-
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
-
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
-
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team just disappears and belongs to no one</div>
-
       </div>
-
     </div>
-
     <div class="rules-block">
-
       <h3>💡 A Little Hint 💡</h3>
-
       <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team, spread it out, or don't and accept that you're limiting your own chances of climbing the leaderboard.</p>
-
     </div>
-
     <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
-
       <h3>Want a Trial Run?</h3>
-
       <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like. Nothing there counts.</p>
-
     </div>`;
-
 }
+
 // ============================================
 // LOADING, TOAST, RESET
 // ============================================
