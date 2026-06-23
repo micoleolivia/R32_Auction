@@ -2,7 +2,7 @@
 // FIREBASE SETUP
 // ============================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot }
+import { getFirestore, doc, getDoc, setDoc, onSnapshot, deleteField }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -772,9 +772,14 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
 };
 
 window.clearResult = async function(matchId) {
-  if (!confirm('Undo this result? Collections will NOT be automatically reversed.')) return;
+  if (!confirm('Undo this result? Re-enter the correct result immediately after to keep squads accurate.')) return;
   delete state.matchResults[matchId];
-  await saveToFirebase({ matchResults: state.matchResults });
+  // Use deleteField to actually remove the key from Firestore — merge:true alone won't delete keys
+  try {
+    await setDoc(doc(db,'worldcup2026_r32','shared'), {
+      matchResults: { [matchId]: deleteField() }
+    }, { merge: true });
+  } catch(e) { showToast('Save failed','error'); return; }
   showToast('Result undone.','');
   renderResults();
   renderLeaderboard();
