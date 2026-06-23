@@ -22,7 +22,7 @@ const db = getFirestore(firebaseApp);
 // ============================================
 const PLAYERS = [
   { name: 'Micole',   icon: '🍓' },
-  { name: 'Mom',      icon: '🍐' },
+  { name: 'Eve',      icon: '🍐' },
   { name: 'Zac',      icon: '🍎' },
   { name: 'Sean',     icon: '🍍' },
   { name: 'Patricia', icon: '🍇' },
@@ -949,7 +949,7 @@ function toggleRevealFeed(wrap, btn) {
 // ============================================
 // TRIAL RUN — self-contained sandbox, no Firebase, replayable
 // ============================================
-const TRIAL_BOT_NAMES = ['Bot Mom', 'Bot Zac', 'Bot Sean', 'Bot Patricia'];
+const TRIAL_BOT_NAMES = ['Bot Eve', 'Bot Zac', 'Bot Sean', 'Bot Patricia'];
 const TRIAL_MATCHES = [
   { id:'t1', teamA:{ name:'Brazil', flag:'🇧🇷' },     teamB:{ name:'Croatia', flag:'🇭🇷' } },
   { id:'t2', teamA:{ name:'Argentina', flag:'🇦🇷' },   teamB:{ name:'Japan', flag:'🇯🇵' } },
