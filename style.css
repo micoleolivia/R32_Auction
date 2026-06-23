@@ -235,3 +235,7 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 /* COUNTDOWN */
 .countdown-number{font-family:'Bebas Neue',sans-serif;font-size:6rem;line-height:1;color:var(--gold);margin-top:24px;text-shadow:0 0 40px rgba(245,197,24,.4);animation:countdownPulse 1s ease infinite}
 @keyframes countdownPulse{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+
+/* GRAVEYARD */
+.graveyard-badge{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;padding:4px 10px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);color:var(--text3)}
+.graveyard-owner{font-size:.65rem;color:var(--text3);font-style:italic}
