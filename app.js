@@ -942,7 +942,9 @@ function renderLeaderboard() {
     graveyardEntries.forEach(({ slot, originalOwner }) => {
       const badge = document.createElement('span');
       badge.className = 'graveyard-badge';
-      badge.innerHTML = `${slot?.flag||'🏳️'} ${slot?.name||'?'}${originalOwner ? ` <span class="graveyard-owner">was ${originalOwner}'s</span>` : ''}`;
+      badge.innerHTML = originalOwner
+        ? `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner">· was ${originalOwner}'s</span>`
+        : `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner">· unowned</span>`;
       gGrid.appendChild(badge);
     });
     container.appendChild(gGrid);
