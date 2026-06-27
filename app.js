@@ -1216,6 +1216,7 @@ function renderRules() {
     <div class="rules-block">
       <h3>How Bidding Works</h3>
       <p>🏆 Auction starts at 19:00 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
+      <p>🏆 When the auction starts, Micole will send a message on the house sitting group. <br>If your screen does not have a countdown after Micole sent a message then reload your page <br> All should be fine after that. <br>For some reason, the system does not work well on ipads, so don't use one</p>
       <p>🏆 Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
       <p>🏆 The matches will open in chronological order of date played</p>
       <p>🏆 The minimum bid that can be made is 5 coins. However, you do have the option not to bid at all on a match. </p>
