@@ -1226,6 +1226,7 @@ function renderRules() {
       <p>🏆 Ownership of other members teams becomes visible after the match takes place. That's when the reveal happens (who stole what from whom).</p>
       <p>🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
       <p>🏆 After the auction closes, you don't need to do anything else, the system will handle the rest. All you need to do is watch how your teams steal or get stolen from!</p>
+      <p>🏆 If it seems like there are a lot of rules, try the "Trial Run" you'll find it is quite simple.</p>
     </div>
     <div class="rules-block">
       <h3>How to Get More Teams After the Auction</h3>
