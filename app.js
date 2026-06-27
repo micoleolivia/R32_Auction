@@ -1220,8 +1220,8 @@ function renderRules() {
       <p>🏆 The matches will open in chronological order of date played</p>
       <p>🏆 The minimum bid that can be made is 5 coins.</p>
       <p>🏆 You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
-      <p>🏆 Once bidding closes, you see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
-      <p>🏆 You only ever see your own outcome. Ownership will stay hidden until that team actually plays in the real World Cup. That's when the reveal happens (who stole what from whom).</p>
+      <p>🏆 Once bidding closes, you only ever see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
+      <p>🏆 Ownership of other members teams becomes visible after the match takes place. That's when the reveal happens (who stole what from whom).</p>
       <p>🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
       <p>🏆 After the auction closes, you don't need to do anything else — the system handles the rest. All you need to do is watch how your teams steal or get stolen from!</p>
     </div>
