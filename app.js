@@ -1212,6 +1212,7 @@ function renderRules() {
       <h3>The Gist</h3>
       <p>It's a live, blind auction for World Cup teams.</p>
       <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
+     <p>Do not enter Micole's profile, it has scary looking stuff.</p>
     </div>
     <div class="rules-block">
       <h3>How Bidding Works</h3>
