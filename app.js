@@ -36,59 +36,78 @@ const REVEAL_SECONDS  = 10;
 
 // ============================================
 // ROUND OF 32 SLOTS
+// Each slot = one team. Confirmed = known team, unconfirmed = TBA.
+// To update a TBA: change confirmed:false to confirmed:true,
+// update name and flag, and remove the placeholder line.
 // ============================================
 const slots = [
-  { id:'s1',  name:'Brazil',            flag:'🇧🇷', confirmed:true,  group:'C' },
-  { id:'s2',  name:'France',            flag:'🇫🇷', confirmed:true,  group:'I' },
-  { id:'s3',  name:'Argentina',         flag:'🇦🇷', confirmed:true,  group:'J' },
-  { id:'s4',  name:'England',           flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', confirmed:true,  group:'L' },
-  { id:'s5',  name:'Spain',             flag:'🇪🇸', confirmed:true,  group:'H' },
-  { id:'s6',  name:'Germany',           flag:'🇩🇪', confirmed:true,  group:'E' },
-  { id:'s7',  name:'Portugal',          flag:'🇵🇹', confirmed:true,  group:'K' },
-  { id:'s8',  name:'Netherlands',       flag:'🇳🇱', confirmed:true,  group:'F' },
-  { id:'s9',  name:'Belgium',           flag:'🇧🇪', confirmed:true,  group:'G' },
-  { id:'s10', name:'Uruguay',           flag:'🇺🇾', confirmed:true,  group:'H' },
-  { id:'s11', name:'USA',               flag:'🇺🇸', confirmed:true,  group:'D' },
-  { id:'s12', name:'Canada',            flag:'🇨🇦', confirmed:true,  group:'B' },
-  { id:'s13', name:'Mexico',            flag:'🇲🇽', confirmed:true,  group:'A' },
-  { id:'s14', name:'Morocco',           flag:'🇲🇦', confirmed:true,  group:'C' },
-  { id:'s15', name:'Japan',             flag:'🇯🇵', confirmed:true,  group:'F' },
-  { id:'s16', name:'Senegal',           flag:'🇸🇳', confirmed:true,  group:'I' },
-  { id:'s17', name:'Colombia',          flag:'🇨🇴', confirmed:true,  group:'K' },
-  { id:'s18', name:'Ecuador',           flag:'🇪🇨', confirmed:true,  group:'E' },
-  { id:'s19', name:'Croatia',           flag:'🇭🇷', confirmed:true,  group:'L' },
-  { id:'s20', name:'South Korea',       flag:'🇰🇷', confirmed:true,  group:'A' },
-  { id:'s21', name:'Switzerland',       flag:'🇨🇭', confirmed:true,  group:'B' },
-  { id:'s22', name:'Austria',           flag:'🇦🇹', confirmed:true,  group:'J' },
-  { id:'s23', name:'Norway',            flag:'🇳🇴', confirmed:true,  group:'I' },
-  { id:'s24', name:'Türkiye',           flag:'🇹🇷', confirmed:true,  group:'D' },
-  { id:'s25', name:'DR Congo',          flag:'🇨🇩', confirmed:true,  group:'K' },
-  { id:'s26', name:'Group A Runner-up', flag:'🏳️', confirmed:false, placeholder:'South Africa or Czechia',  group:'A' },
-  { id:'s27', name:'Group B Runner-up', flag:'🏳️', confirmed:false, placeholder:'Bosnia & Herz. or Qatar', group:'B' },
-  { id:'s28', name:'Group D Runner-up', flag:'🏳️', confirmed:false, placeholder:'Australia or Paraguay',   group:'D' },
-  { id:'s29', name:'Group E Runner-up', flag:'🏳️', confirmed:false, placeholder:'Ivory Coast or Curaçao',  group:'E' },
-  { id:'s30', name:'Group F Runner-up', flag:'🏳️', confirmed:false, placeholder:'Sweden or Tunisia',       group:'F' },
-  { id:'s31', name:'Group G Runner-up', flag:'🏳️', confirmed:false, placeholder:'Egypt or Iran',           group:'G' },
-  { id:'s32', name:'Group L Runner-up', flag:'🏳️', confirmed:false, placeholder:'Ghana or Panama',         group:'L' },
+  // Match 1: South Africa vs Canada
+  { id:'s1',  name:'South Africa', flag:'🇿🇦', confirmed:true,  group:'A' },
+  { id:'s2',  name:'Canada',       flag:'🇨🇦', confirmed:true,  group:'B' },
+  // Match 2: Netherlands vs Morocco
+  { id:'s3',  name:'Netherlands',  flag:'🇳🇱', confirmed:true,  group:'F' },
+  { id:'s4',  name:'Morocco',      flag:'🇲🇦', confirmed:true,  group:'C' },
+  // Match 3: Germany vs Paraguay
+  { id:'s5',  name:'Germany',      flag:'🇩🇪', confirmed:true,  group:'E' },
+  { id:'s6',  name:'Paraguay',     flag:'🇵🇾', confirmed:true,  group:'D' },
+  // Match 4: France vs Sweden
+  { id:'s7',  name:'France',       flag:'🇫🇷', confirmed:true,  group:'I' },
+  { id:'s8',  name:'Sweden',       flag:'🇸🇪', confirmed:true,  group:'F' },
+  // Match 5: Belgium vs TBA
+  { id:'s9',  name:'Belgium',      flag:'🇧🇪', confirmed:true,  group:'G' },
+  { id:'s10', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 5 opponent', group:'?' },
+  // Match 6: USA vs Bosnia & Herzegovina
+  { id:'s11', name:'USA',          flag:'🇺🇸', confirmed:true,  group:'D' },
+  { id:'s12', name:'Bosnia & Herz.',flag:'🇧🇦', confirmed:true,  group:'B' },
+  // Match 7: Spain vs TBA
+  { id:'s13', name:'Spain',        flag:'🇪🇸', confirmed:true,  group:'H' },
+  { id:'s14', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 7 opponent', group:'?' },
+  // Match 8: TBA vs TBA
+  { id:'s15', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 8 home team', group:'?' },
+  { id:'s16', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 8 away team', group:'?' },
+  // Match 9: Brazil vs Japan
+  { id:'s17', name:'Brazil',       flag:'🇧🇷', confirmed:true,  group:'C' },
+  { id:'s18', name:'Japan',        flag:'🇯🇵', confirmed:true,  group:'F' },
+  // Match 10: Ivory Coast vs Norway
+  { id:'s19', name:'Ivory Coast',  flag:'🇨🇮', confirmed:true,  group:'E' },
+  { id:'s20', name:'Norway',       flag:'🇳🇴', confirmed:true,  group:'I' },
+  // Match 11: Mexico vs TBA
+  { id:'s21', name:'Mexico',       flag:'🇲🇽', confirmed:true,  group:'A' },
+  { id:'s22', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 11 opponent', group:'?' },
+  // Match 12: TBA vs TBA
+  { id:'s23', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 12 home team', group:'?' },
+  { id:'s24', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 12 away team', group:'?' },
+  // Match 13: Switzerland vs TBA
+  { id:'s25', name:'Switzerland',  flag:'🇨🇭', confirmed:true,  group:'B' },
+  { id:'s26', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 13 opponent', group:'?' },
+  // Match 14: TBA vs TBA
+  { id:'s27', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 14 home team', group:'?' },
+  { id:'s28', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 14 away team', group:'?' },
+  // Match 15: Australia vs Egypt
+  { id:'s29', name:'Australia',    flag:'🇦🇺', confirmed:true,  group:'D' },
+  { id:'s30', name:'Egypt',        flag:'🇪🇬', confirmed:true,  group:'G' },
+  // Match 16: Argentina vs Cabo Verde
+  { id:'s31', name:'Argentina',    flag:'🇦🇷', confirmed:true,  group:'J' },
+  { id:'s32', name:'Cabo Verde',   flag:'🇨🇻', confirmed:true,  group:'K' },
 ];
 
 const r32Matches = [
-  { id:'r32-1',  slotA:'s1',  slotB:'s26' },
-  { id:'r32-2',  slotA:'s13', slotB:'s20' },
-  { id:'r32-3',  slotA:'s12', slotB:'s21' },
-  { id:'r32-4',  slotA:'s27', slotB:'s2'  },
-  { id:'r32-5',  slotA:'s14', slotB:'s4'  },
-  { id:'r32-6',  slotA:'s19', slotB:'s32' },
-  { id:'r32-7',  slotA:'s11', slotB:'s24' },
-  { id:'r32-8',  slotA:'s28', slotB:'s6'  },
-  { id:'r32-9',  slotA:'s18', slotB:'s29' },
-  { id:'r32-10', slotA:'s31', slotB:'s9'  },
-  { id:'r32-11', slotA:'s15', slotB:'s30' },
-  { id:'r32-12', slotA:'s8',  slotB:'s16' },
-  { id:'r32-13', slotA:'s5',  slotB:'s10' },
-  { id:'r32-14', slotA:'s23', slotB:'s3'  },
-  { id:'r32-15', slotA:'s7',  slotB:'s17' },
-  { id:'r32-16', slotA:'s25', slotB:'s22' },
+  { id:'r32-1',  slotA:'s1',  slotB:'s2'  },  // South Africa vs Canada
+  { id:'r32-2',  slotA:'s3',  slotB:'s4'  },  // Netherlands vs Morocco
+  { id:'r32-3',  slotA:'s5',  slotB:'s6'  },  // Germany vs Paraguay
+  { id:'r32-4',  slotA:'s7',  slotB:'s8'  },  // France vs Sweden
+  { id:'r32-5',  slotA:'s9',  slotB:'s10' },  // Belgium vs TBA
+  { id:'r32-6',  slotA:'s11', slotB:'s12' },  // USA vs Bosnia & Herz.
+  { id:'r32-7',  slotA:'s13', slotB:'s14' },  // Spain vs TBA
+  { id:'r32-8',  slotA:'s15', slotB:'s16' },  // TBA vs TBA
+  { id:'r32-9',  slotA:'s17', slotB:'s18' },  // Brazil vs Japan
+  { id:'r32-10', slotA:'s19', slotB:'s20' },  // Ivory Coast vs Norway
+  { id:'r32-11', slotA:'s21', slotB:'s22' },  // Mexico vs TBA
+  { id:'r32-12', slotA:'s23', slotB:'s24' },  // TBA vs TBA
+  { id:'r32-13', slotA:'s25', slotB:'s26' },  // Switzerland vs TBA
+  { id:'r32-14', slotA:'s27', slotB:'s28' },  // TBA vs TBA
+  { id:'r32-15', slotA:'s29', slotB:'s30' },  // Australia vs Egypt
+  { id:'r32-16', slotA:'s31', slotB:'s32' },  // Argentina vs Cabo Verde
 ];
 
 // ============================================
@@ -278,7 +297,6 @@ function startTicker() {
     }
   }, 1000);
 
-  // Safari/iOS catch-up fix — force re-fetch when tab becomes visible again
   document.addEventListener('visibilitychange', forceCatchUp);
   window.addEventListener('focus', forceCatchUp);
   window.addEventListener('pageshow', forceCatchUp);
@@ -442,13 +460,13 @@ function renderAuction() {
       <div class="live-team">
         <div class="live-flag">${slotA?.flag}</div>
         <div class="live-name">${slotA?.name}</div>
-        ${!slotA?.confirmed ? `<div class="live-placeholder">Either: ${slots.find(s=>s.id===match.slotA)?.placeholder}</div>` : ''}
+        ${!slotA?.confirmed ? `<div class="live-placeholder">TBA: ${slots.find(s=>s.id===match.slotA)?.placeholder}</div>` : ''}
       </div>
       <div class="live-vs">VS</div>
       <div class="live-team">
         <div class="live-flag">${slotB?.flag}</div>
         <div class="live-name">${slotB?.name}</div>
-        ${!slotB?.confirmed ? `<div class="live-placeholder">Either: ${slots.find(s=>s.id===match.slotB)?.placeholder}</div>` : ''}
+        ${!slotB?.confirmed ? `<div class="live-placeholder">TBA: ${slots.find(s=>s.id===match.slotB)?.placeholder}</div>` : ''}
       </div>
     </div>
     <div id="live-timer-zone"></div>
@@ -727,7 +745,6 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
   const loser  = getSlot(loserSlot);
   if (!confirm(`${winner?.name} beat ${loser?.name}?`)) return;
 
-  // Record who owned the loser BEFORE removing them from collection
   const winnerHolder = getCurrentHolder(winnerSlot);
   const loserHolder  = getCurrentHolder(loserSlot);
 
@@ -774,7 +791,6 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
 window.clearResult = async function(matchId) {
   if (!confirm('Undo this result? Re-enter the correct result immediately after to keep squads accurate.')) return;
   delete state.matchResults[matchId];
-  // Use deleteField to actually remove the key from Firestore — merge:true alone won't delete keys
   try {
     await setDoc(doc(db,'worldcup2026_r32','shared'), {
       matchResults: { [matchId]: deleteField() }
@@ -796,7 +812,6 @@ function renderLeaderboard() {
 
   const hasResults = Object.keys(state.matchResults).length > 0;
 
-  // REVEAL FEED — top, capped at 3, expandable
   if (state.revealFeed && state.revealFeed.length > 0) {
     const feedTitle = document.createElement('div');
     feedTitle.className = 'auction-section-title';
@@ -825,7 +840,7 @@ function renderLeaderboard() {
   if (!hasResults) {
     const intro = document.createElement('div');
     intro.className = 'leaderboard-empty';
-    intro.innerHTML = 'Ownership is secret! The leaderboard activates once real match results are entered, that\'s when steals/collections are revealed.';
+    intro.innerHTML = 'Ownership is secret! The leaderboard activates once real match results are entered.';
     container.appendChild(intro);
 
     PLAYERS.forEach((player, i) => {
@@ -903,25 +918,17 @@ function renderLeaderboard() {
     container.appendChild(row);
   });
 
-  // ============================================
-  // GRAVEYARD — teams eliminated with no one gaining them
-  // Only shows teams where the loser was owned and nobody stole them
-  // (i.e. lost to an unowned team, or self-match elimination)
-  // ============================================
+  // GRAVEYARD
   const graveyardEntries = [];
   Object.entries(state.matchResults).forEach(([matchId, result]) => {
     const loserSlot = result.loserSlot;
-    // Use saved loserOriginalOwner if available, otherwise fall back to state.owners
-    // (state.owners records who won the auction, even if they later lost the team)
     const originalOwner = result.loserOriginalOwner || state.owners[loserSlot]?.username || null;
     const currentlyHeld = getCurrentHolder(loserSlot);
     if (originalOwner && !currentlyHeld) {
-      const slot = getSlot(loserSlot);
-      graveyardEntries.push({ slot, originalOwner });
+      graveyardEntries.push({ slot: getSlot(loserSlot), originalOwner });
     }
     if (!originalOwner && !getCurrentHolder(result.winnerSlot) && !currentlyHeld) {
-      const slot = getSlot(loserSlot);
-      graveyardEntries.push({ slot, originalOwner: null });
+      graveyardEntries.push({ slot: getSlot(loserSlot), originalOwner: null });
     }
   });
 
