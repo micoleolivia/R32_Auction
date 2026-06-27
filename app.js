@@ -1176,7 +1176,7 @@ function renderTrialPhase() {
         <div class="live-bid-box"><div class="live-bid-team">${match.teamA.flag} ${match.teamA.name}</div>${box('A')}</div>
         <div class="live-bid-box"><div class="live-bid-team">${match.teamB.flag} ${match.teamB.name}</div>${box('B')}</div>
       </div>
-      <div class="live-bid-hint">This is practice — bids are blind here too, against 4 simulated bidders. You can only back ONE team per match. Minimum bid is ${MIN_BID} coins (or 0 to skip).</div>`;
+      <div class="live-bid-hint">This is practice, bids are blind here too, against 4 simulated bidders. You can only back ONE team per match. Minimum bid is ${MIN_BID} coins (or 0 to skip).</div>`;
   } else if (trial.phase === 'reveal') {
     const resultsForMatch = trial.owners.filter(o => o.matchId === match.id);
     let resultHTML = '';
