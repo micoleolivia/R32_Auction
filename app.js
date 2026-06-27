@@ -1223,7 +1223,7 @@ function renderRules() {
       <p>🏆 Once bidding closes, you only ever see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
       <p>🏆 Ownership of other members teams becomes visible after the match takes place. That's when the reveal happens (who stole what from whom).</p>
       <p>🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
-      <p>🏆 After the auction closes, you don't need to do anything else — the system handles the rest. All you need to do is watch how your teams steal or get stolen from!</p>
+      <p>🏆 After the auction closes, you don't need to do anything else, the system will handle the rest. All you need to do is watch how your teams steal or get stolen from!</p>
     </div>
     <div class="rules-block">
       <h3>How to Get More Teams After the Auction</h3>
@@ -1231,7 +1231,7 @@ function renderRules() {
         <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their team</div>
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
-        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team just disappears and belongs to no one</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team ends up in the graveyard (below the leaderboard table) </div>
       </div>
     </div>
     <div class="rules-block">
