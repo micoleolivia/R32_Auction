@@ -940,7 +940,7 @@ function renderLeaderboard() {
     const gTitle = document.createElement('div');
     gTitle.className = 'auction-section-title';
     gTitle.style.color = 'var(--text3)';
-    gTitle.textContent = '💀 Eliminated';
+    gTitle.textContent = '💀 Graveyard';
     container.appendChild(gTitle);
 
     const gSubtitle = document.createElement('div');
@@ -1231,7 +1231,7 @@ function renderRules() {
         <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their team</div>
         <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
-        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team ends up in the graveyard (below the leaderboard table) </div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team ends up in the graveyard (below the leaderboard table - will appear as soon as a team ends up in it) </div>
       </div>
     </div>
     <div class="rules-block">
