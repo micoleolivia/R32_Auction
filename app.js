@@ -1218,7 +1218,7 @@ function renderRules() {
       <p>🏆 Auction starts at 19:00 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
       <p>🏆 Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
       <p>🏆 The matches will open in chronological order of date played</p>
-      <p>🏆 The minimum bid that can be made is 5 coins.</p>
+      <p>🏆 The minimum bid that can be made is 5 coins. However, you do have the option not to bid at all on a match. </p>
       <p>🏆 You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
       <p>🏆 Once bidding closes, you only ever see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
       <p>🏆 Ownership of other members teams becomes visible after the match takes place. That's when the reveal happens (who stole what from whom).</p>
