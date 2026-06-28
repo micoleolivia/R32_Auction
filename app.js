@@ -42,53 +42,53 @@ const REVEAL_SECONDS  = 10;
 // ============================================
 const slots = [
   // Match 1: South Africa vs Canada
-  { id:'s1',  name:'South Africa', flag:'🇿🇦', confirmed:true,  group:'A' },
-  { id:'s2',  name:'Canada',       flag:'🇨🇦', confirmed:true,  group:'B' },
+  { id:'s1',  name:'South Africa',    flag:'🇿🇦', confirmed:true,  group:'A' },
+  { id:'s2',  name:'Canada',          flag:'🇨🇦', confirmed:true,  group:'B' },
   // Match 2: Netherlands vs Morocco
-  { id:'s3',  name:'Netherlands',  flag:'🇳🇱', confirmed:true,  group:'F' },
-  { id:'s4',  name:'Morocco',      flag:'🇲🇦', confirmed:true,  group:'C' },
+  { id:'s3',  name:'Netherlands',     flag:'🇳🇱', confirmed:true,  group:'F' },
+  { id:'s4',  name:'Morocco',         flag:'🇲🇦', confirmed:true,  group:'C' },
   // Match 3: Germany vs Paraguay
-  { id:'s5',  name:'Germany',      flag:'🇩🇪', confirmed:true,  group:'E' },
-  { id:'s6',  name:'Paraguay',     flag:'🇵🇾', confirmed:true,  group:'D' },
+  { id:'s5',  name:'Germany',         flag:'🇩🇪', confirmed:true,  group:'E' },
+  { id:'s6',  name:'Paraguay',        flag:'🇵🇾', confirmed:true,  group:'D' },
   // Match 4: France vs Sweden
-  { id:'s7',  name:'France',       flag:'🇫🇷', confirmed:true,  group:'I' },
-  { id:'s8',  name:'Sweden',       flag:'🇸🇪', confirmed:true,  group:'F' },
-  // Match 5: Belgium vs TBA
-  { id:'s9',  name:'Belgium',      flag:'🇧🇪', confirmed:true,  group:'G' },
-  { id:'s10', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 5 opponent', group:'?' },
+  { id:'s7',  name:'France',          flag:'🇫🇷', confirmed:true,  group:'I' },
+  { id:'s8',  name:'Sweden',          flag:'🇸🇪', confirmed:true,  group:'F' },
+  // Match 5: Belgium vs Senegal
+  { id:'s9',  name:'Belgium',         flag:'🇧🇪', confirmed:true,  group:'G' },
+  { id:'s10', name:'Senegal',         flag:'🇸🇳', confirmed:true,  group:'I' },
   // Match 6: USA vs Bosnia & Herzegovina
-  { id:'s11', name:'USA',          flag:'🇺🇸', confirmed:true,  group:'D' },
-  { id:'s12', name:'Bosnia & Herz.',flag:'🇧🇦', confirmed:true,  group:'B' },
-  // Match 7: Spain vs TBA
-  { id:'s13', name:'Spain',        flag:'🇪🇸', confirmed:true,  group:'H' },
-  { id:'s14', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 7 opponent', group:'?' },
-  // Match 8: TBA vs TBA
-  { id:'s15', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 8 home team', group:'?' },
-  { id:'s16', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 8 away team', group:'?' },
+  { id:'s11', name:'USA',             flag:'🇺🇸', confirmed:true,  group:'D' },
+  { id:'s12', name:'Bosnia & Herz.',  flag:'🇧🇦', confirmed:true,  group:'B' },
+  // Match 7: Spain vs Austria
+  { id:'s13', name:'Spain',           flag:'🇪🇸', confirmed:true,  group:'H' },
+  { id:'s14', name:'Austria',         flag:'🇦🇹', confirmed:true,  group:'J' },
+  // Match 8: Portugal vs Croatia
+  { id:'s15', name:'Portugal',        flag:'🇵🇹', confirmed:true,  group:'K' },
+  { id:'s16', name:'Croatia',         flag:'🇭🇷', confirmed:true,  group:'L' },
   // Match 9: Brazil vs Japan
-  { id:'s17', name:'Brazil',       flag:'🇧🇷', confirmed:true,  group:'C' },
-  { id:'s18', name:'Japan',        flag:'🇯🇵', confirmed:true,  group:'F' },
+  { id:'s17', name:'Brazil',          flag:'🇧🇷', confirmed:true,  group:'C' },
+  { id:'s18', name:'Japan',           flag:'🇯🇵', confirmed:true,  group:'F' },
   // Match 10: Ivory Coast vs Norway
-  { id:'s19', name:'Ivory Coast',  flag:'🇨🇮', confirmed:true,  group:'E' },
-  { id:'s20', name:'Norway',       flag:'🇳🇴', confirmed:true,  group:'I' },
-  // Match 11: Mexico vs TBA
-  { id:'s21', name:'Mexico',       flag:'🇲🇽', confirmed:true,  group:'A' },
-  { id:'s22', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 11 opponent', group:'?' },
-  // Match 12: TBA vs TBA
-  { id:'s23', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 12 home team', group:'?' },
-  { id:'s24', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 12 away team', group:'?' },
-  // Match 13: Switzerland vs TBA
-  { id:'s25', name:'Switzerland',  flag:'🇨🇭', confirmed:true,  group:'B' },
-  { id:'s26', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 13 opponent', group:'?' },
-  // Match 14: TBA vs TBA
-  { id:'s27', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 14 home team', group:'?' },
-  { id:'s28', name:'TBA',          flag:'🏳️', confirmed:false, placeholder:'Match 14 away team', group:'?' },
+  { id:'s19', name:'Ivory Coast',     flag:'🇨🇮', confirmed:true,  group:'E' },
+  { id:'s20', name:'Norway',          flag:'🇳🇴', confirmed:true,  group:'I' },
+  // Match 11: Mexico vs Ecuador
+  { id:'s21', name:'Mexico',          flag:'🇲🇽', confirmed:true,  group:'A' },
+  { id:'s22', name:'Ecuador',         flag:'🇪🇨', confirmed:true,  group:'E' },
+  // Match 12: England vs DR Congo
+  { id:'s23', name:'England',         flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', confirmed:true,  group:'L' },
+  { id:'s24', name:'DR Congo',        flag:'🇨🇩', confirmed:true,  group:'K' },
+  // Match 13: Switzerland vs Algeria
+  { id:'s25', name:'Switzerland',     flag:'🇨🇭', confirmed:true,  group:'B' },
+  { id:'s26', name:'Algeria',         flag:'🇩🇿', confirmed:true,  group:'J' },
+  // Match 14: Colombia vs Ghana
+  { id:'s27', name:'Colombia',        flag:'🇨🇴', confirmed:true,  group:'K' },
+  { id:'s28', name:'Ghana',           flag:'🇬🇭', confirmed:true,  group:'L' },
   // Match 15: Australia vs Egypt
-  { id:'s29', name:'Australia',    flag:'🇦🇺', confirmed:true,  group:'D' },
-  { id:'s30', name:'Egypt',        flag:'🇪🇬', confirmed:true,  group:'G' },
+  { id:'s29', name:'Australia',       flag:'🇦🇺', confirmed:true,  group:'D' },
+  { id:'s30', name:'Egypt',           flag:'🇪🇬', confirmed:true,  group:'G' },
   // Match 16: Argentina vs Cabo Verde
-  { id:'s31', name:'Argentina',    flag:'🇦🇷', confirmed:true,  group:'J' },
-  { id:'s32', name:'Cabo Verde',   flag:'🇨🇻', confirmed:true,  group:'K' },
+  { id:'s31', name:'Argentina',       flag:'🇦🇷', confirmed:true,  group:'J' },
+  { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
 ];
 
 const r32Matches = [
