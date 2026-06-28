@@ -28,7 +28,7 @@ const PLAYERS = [
   { name: 'Patricia', icon: '🍇' },
 ];
 
-const STARTING_COINS = 100;
+const STARTING_COINS = 120;
 const MIN_BID         = 5;
 const COUNTDOWN_SECONDS = 10;
 const BID_SECONDS     = 20;
@@ -1211,7 +1211,7 @@ function renderRules() {
     <div class="rules-block">
       <h3>The Gist</h3>
       <p>It's a live, blind auction for World Cup teams.</p>
-      <p>Everyone starts with <strong>100 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
+      <p>Everyone starts with <strong>120 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
      <p>Do not enter Micole's profile, it has scary looking stuff.</p>
     </div>
     <div class="rules-block">
