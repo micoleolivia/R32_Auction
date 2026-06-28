@@ -25,7 +25,6 @@ const PLAYERS = [
   { name: 'Eve',      icon: '🍐' },
   { name: 'Zac',      icon: '🍎' },
   { name: 'Sean',     icon: '🍍' },
-  { name: 'Patricia', icon: '🍇' },
 ];
 
 const STARTING_COINS = 120;
