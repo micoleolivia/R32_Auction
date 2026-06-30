@@ -1009,7 +1009,7 @@ function renderLeaderboard() {
 
     const uSubtitle = document.createElement('div');
     uSubtitle.style.cssText = 'font-size:.78rem;color:var(--text3);margin-bottom:14px;';
-    uSubtitle.textContent = 'These are the teams you did not believe in';
+    uSubtitle.textContent = ' 👑 Unclaimed Survivors';
     container.appendChild(uSubtitle);
 
     const uGrid = document.createElement('div');
