@@ -1009,7 +1009,7 @@ function renderLeaderboard() {
 
     const uSubtitle = document.createElement('div');
     uSubtitle.style.cssText = 'font-size:.78rem;color:var(--text3);margin-bottom:14px;';
-    uSubtitle.textContent = 'These teams progressed but nobody owns them — still up for grabs if your team beats them next round.';
+    uSubtitle.textContent = 'These are the teams you did not believe in';
     container.appendChild(uSubtitle);
 
     const uGrid = document.createElement('div');
