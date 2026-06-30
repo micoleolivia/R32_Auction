@@ -1004,7 +1004,7 @@ function renderLeaderboard() {
     const uTitle = document.createElement('div');
     uTitle.className = 'auction-section-title';
     uTitle.style.color = 'var(--teal)';
-    uTitle.textContent = '🆓 Teams You Didn\'t Believe In';
+    uTitle.textContent = '👑 Unclaimed Survivors';
     container.appendChild(uTitle);
 
     const uSubtitle = document.createElement('div');
