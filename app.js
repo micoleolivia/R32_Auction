@@ -970,7 +970,7 @@ function renderLeaderboard() {
 
     const gSubtitle = document.createElement('div');
     gSubtitle.style.cssText = 'font-size:.78rem;color:var(--text3);margin-bottom:14px;';
-    gSubtitle.textContent = 'These teams were knocked out and nobody gained them.';
+    gSubtitle.textContent = 'These teams were knocked out by an unowned team and nobody gained them.';
     container.appendChild(gSubtitle);
 
     const gGrid = document.createElement('div');
