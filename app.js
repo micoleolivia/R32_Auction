@@ -943,8 +943,7 @@ function renderLeaderboard() {
       </div>`;
     container.appendChild(row);
   });
-
-  // GRAVEYARD
+// GRAVEYARD
   const graveyardEntries = [];
   Object.entries(state.matchResults).forEach(([matchId, result]) => {
     const loserSlot = result.loserSlot;
@@ -977,16 +976,6 @@ function renderLeaderboard() {
     const gGrid = document.createElement('div');
     gGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
     graveyardEntries.forEach(({ slot, originalOwner }) => {
-      const badge = document.createElement('span');
-      badge.className = 'graveyard-badge';
-      badge.innerHTML = originalOwner
-        ? `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner">· was ${originalOwner}'s</span>`
-        : `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner">· unowned</span>`;
-      gGrid.appendChild(badge);
-    });
-    container.appendChild(gGrid);
-  }
-graveyardEntries.forEach(({ slot, originalOwner }) => {
       const badge = document.createElement('span');
       badge.className = 'graveyard-badge';
       badge.innerHTML = originalOwner
@@ -1055,7 +1044,6 @@ function toggleRevealFeed(wrap, btn) {
   btn.dataset.expanded = (!isExpanded).toString();
   btn.textContent = !isExpanded ? 'Show less ▴' : `Show all ${state.revealFeed.length} updates ▾`;
 }
-
 // ============================================
 // TRIAL RUN
 // ============================================
