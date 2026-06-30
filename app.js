@@ -932,7 +932,7 @@ function renderLeaderboard() {
       <div class="lb-position">${medals[i]}</div>
       <div class="lb-info">
         <div class="lb-name">${player.icon} ${player.name}</div>
-        <div class="lb-type">As games are played, teams will be revealed — owned, stolen or collected</div>
+        <div class="lb-type">As games are played, teams will be revealed. They could be owned, stolen or collected</div>
         ${ownedBadges ? `<div class="lb-teams"><span class="lb-teams-label">🟢 Owned:</span>${ownedBadges}</div>` : ''}
         ${stolenBadges ? `<div class="lb-teams"><span class="lb-teams-label">🟣 Stolen:</span>${stolenBadges}</div>` : ''}
         ${collectedBadges ? `<div class="lb-teams"><span class="lb-teams-label">🔵 Collected:</span>${collectedBadges}</div>` : ''}
