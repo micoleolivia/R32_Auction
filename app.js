@@ -986,6 +986,54 @@ function renderLeaderboard() {
     });
     container.appendChild(gGrid);
   }
+graveyardEntries.forEach(({ slot, originalOwner }) => {
+      const badge = document.createElement('span');
+      badge.className = 'graveyard-badge';
+      badge.innerHTML = originalOwner
+        ? `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner">· was ${originalOwner}'s</span>`
+        : `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner">· unowned</span>`;
+      gGrid.appendChild(badge);
+    });
+    container.appendChild(gGrid);
+  }
+
+  // UNCLAIMED SURVIVORS — teams that won their match but currently have no owner
+  // (nobody bid on them originally, or they were owned and later lost without being recollected)
+  const unclaimedEntries = [];
+  Object.values(state.matchResults).forEach(result => {
+    const winnerSlot = result.winnerSlot;
+    if (!getCurrentHolder(winnerSlot)) {
+      unclaimedEntries.push({ slot: getSlot(winnerSlot) });
+    }
+  });
+
+  if (unclaimedEntries.length > 0) {
+    const uDivider = document.createElement('div');
+    uDivider.style.cssText = 'height:1px;background:var(--border);margin:28px 0;';
+    container.appendChild(uDivider);
+
+    const uTitle = document.createElement('div');
+    uTitle.className = 'auction-section-title';
+    uTitle.style.color = 'var(--teal)';
+    uTitle.textContent = '🆓 Teams You Didn\'t Believe In';
+    container.appendChild(uTitle);
+
+    const uSubtitle = document.createElement('div');
+    uSubtitle.style.cssText = 'font-size:.78rem;color:var(--text3);margin-bottom:14px;';
+    uSubtitle.textContent = 'These teams progressed but nobody owns them — still up for grabs if your team beats them next round.';
+    container.appendChild(uSubtitle);
+
+    const uGrid = document.createElement('div');
+    uGrid.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+    unclaimedEntries.forEach(({ slot }) => {
+      const badge = document.createElement('span');
+      badge.className = 'graveyard-badge';
+      badge.style.cssText = 'border-color:rgba(0,212,170,.3);color:var(--teal);';
+      badge.innerHTML = `${slot?.flag||'🏳️'} ${slot?.name||'?'} <span class="graveyard-owner" style="color:var(--teal);opacity:.7">· unclaimed</span>`;
+      uGrid.appendChild(badge);
+    });
+    container.appendChild(uGrid);
+  }
 }
 
 function renderRevealFeedItems(wrap, showAll) {
