@@ -652,6 +652,19 @@ function renderMyPicks() {
   const myCol = getCollection(currentUser);
   const coinsSpent = getCoinsSpent(currentUser);
 
+  // Teams that were originally bought/won at auction by this user but have
+  // since been eliminated WITHOUT being stolen (lost to an unowned team) —
+  // these no longer appear in state.collection, so we recover them from
+  // state.owners + matchResults to show them here as "lost" rather than vanishing.
+  const lostTeams = [];
+  Object.entries(state.owners).forEach(([slotId, ownerInfo]) => {
+    if (ownerInfo.username !== currentUser) return;
+    const stillInCollection = myCol.some(c => c.slotId === slotId);
+    if (stillInCollection) return; // still owned/active, handled normally below
+    const result = Object.values(state.matchResults).find(r => r.loserSlot === slotId);
+    if (result) lostTeams.push(slotId);
+  });
+
   const summary = document.createElement('div');
   summary.className = 'squad-summary';
   summary.innerHTML = `
@@ -661,12 +674,12 @@ function renderMyPicks() {
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
   container.appendChild(summary);
 
-  if (myCol.length === 0) {
+  if (myCol.length === 0 && lostTeams.length === 0) {
     container.innerHTML += `<div class="squad-empty"><div style="font-size:2.5rem;margin-bottom:12px">🏴‍☠️</div><div style="font-weight:600;margin-bottom:6px">No teams yet!</div><div style="color:var(--text2);font-size:.88rem">Wait for the live auction to start.</div></div>`;
     return;
   }
 
-  const grid = document.createElement('div');
+const grid = document.createElement('div');
   grid.className = 'squad-grid';
   myCol.forEach(({ slotId, how }) => {
     const slot = getSlot(slotId);
@@ -680,6 +693,17 @@ function renderMyPicks() {
       <div class="squad-name">${slot?.name||slotId}</div>
       <div class="squad-how">${howLabel}</div>
       ${isEliminated ? '<div class="squad-status eliminated">❌ Eliminated</div>' : '<div class="squad-status active">✅ Still in</div>'}`;
+    grid.appendChild(card);
+  });
+  lostTeams.forEach(slotId => {
+    const slot = getSlot(slotId);
+    const card = document.createElement('div');
+    card.className = 'squad-card squad-eliminated squad-lost';
+    card.innerHTML = `
+      <div class="squad-flag">${slot?.flag||'🏳️'}</div>
+      <div class="squad-name">${slot?.name||slotId}</div>
+      <div class="squad-how">⚪ Bought</div>
+      <div class="squad-status eliminated">💀 Lost — not stolen</div>`;
     grid.appendChild(card);
   });
   container.appendChild(grid);
