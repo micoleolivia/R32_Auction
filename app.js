@@ -651,13 +651,15 @@ function renderMyPicks() {
 
   const myCol = getCollection(currentUser);
   const coinsSpent = getCoinsSpent(currentUser);
+  const originalBought = Object.values(state.owners).filter(o => o.username === currentUser).length;
 
   const summary = document.createElement('div');
   summary.className = 'squad-summary';
   summary.innerHTML = `
     <div class="squad-stat"><div class="squad-stat-val">💰 ${coinsSpent}</div><div class="squad-stat-lbl">coins spent</div></div>
     <div class="squad-stat"><div class="squad-stat-val">💰 ${getCoinsRemaining(currentUser)}</div><div class="squad-stat-lbl">coins left</div></div>
-    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">${myCol.length}</div><div class="squad-stat-lbl">total teams bought</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--gold)">${originalBought}</div><div class="squad-stat-lbl">bought at auction</div></div>
+    <div class="squad-stat"><div class="squad-stat-val" style="color:var(--teal)">${myCol.length}</div><div class="squad-stat-lbl">in squad now</div></div>
     <div class="squad-stat"><div class="squad-stat-val" style="color:var(--bet)">${myCol.filter(c=>c.how==='stolen'||c.how==='collected').length}</div><div class="squad-stat-lbl">stolen/collected</div></div>`;
   container.appendChild(summary);
 
