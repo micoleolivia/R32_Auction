@@ -1261,6 +1261,10 @@ function renderRules() {
   const container = document.getElementById('rules-container');
   if (!container) return;
   container.innerHTML = `
+  <div class="rules-block" style="border-color:rgba(255,71,87,.4);background:rgba(255,71,87,.06)">
+  <h3 style="color:var(--red)">🆕 New Rule: Self-Matchups</h3>
+  <p>If you own both teams in a match, you can't steal from yourself. The losing team is just removed from your squad — nobody gains it.</p>
+</div>
     <div class="rules-block">
       <h3>The Gist</h3>
       <p>It's a live, blind auction for World Cup teams.</p>
@@ -1289,6 +1293,7 @@ function renderRules() {
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
         <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team ends up in the graveyard (below the leaderboard table, the graveyard will appear as soon as a team ends up in it) </div>
         <div class="rules-score-row"><span class="score-badge neutral">Self</span> If you own both teams in a match, you can't steal from yourself. The losing team is just removed from your squad, nobody gains it.</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Self</span> If you own both teams in a match, you can't steal from yourself — the losing team is just removed from your squad, nobody gains it.</div>
       </div>
     </div>
     <div class="rules-block">
