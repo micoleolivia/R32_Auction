@@ -88,6 +88,11 @@ const slots = [
   // Match 16: Argentina vs Cabo Verde
   { id:'s31', name:'Argentina',       flag:'🇦🇷', confirmed:true,  group:'J' },
   { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
+
+  // ROUND OF 16 — teams not yet known
+{ id:'r16tba1', name:'TBA', flag:'🏳️', confirmed:false, placeholder:"Switzerland's R16 opponent" },
+{ id:'r16tba2', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team A' },
+{ id:'r16tba3', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team B' },
 ];
 
 const r32Matches = [
@@ -107,6 +112,17 @@ const r32Matches = [
   { id:'r32-14', slotA:'s27', slotB:'s28' },  // TBA vs TBA
   { id:'r32-15', slotA:'s29', slotB:'s30' },  // Australia vs Egypt
   { id:'r32-16', slotA:'s31', slotB:'s32' },  // Argentina vs Cabo Verde
+];
+
+const r16Matches = [
+  { id:'r16-1', slotA:'s2',  slotB:'s4'  },       // Canada vs Morocco
+  { id:'r16-2', slotA:'s7',  slotB:'s6'  },       // France vs Paraguay
+  { id:'r16-3', slotA:'s11', slotB:'s9'  },       // USA vs Belgium
+  { id:'r16-4', slotA:'s13', slotB:'s15' },       // Spain vs Portugal
+  { id:'r16-5', slotA:'s17', slotB:'s20' },       // Brazil vs Norway
+  { id:'r16-6', slotA:'s23', slotB:'s21' },       // England vs Mexico
+  { id:'r16-7', slotA:'s25', slotB:'r16tba1' },   // Switzerland vs TBA
+  { id:'r16-8', slotA:'r16tba2', slotB:'r16tba3' }, // TBA vs TBA
 ];
 
 // ============================================
@@ -708,7 +724,7 @@ function renderResults() {
   const grid = document.createElement('div');
   grid.className = 'results-grid';
 
-  r32Matches.forEach(match => {
+  [...r32Matches, ...r16Matches].forEach(match => {
     const slotA  = getSlot(match.slotA);
     const slotB  = getSlot(match.slotB);
     const result = state.matchResults[match.id];
