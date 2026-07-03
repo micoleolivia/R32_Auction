@@ -1262,7 +1262,7 @@ function renderRules() {
   if (!container) return;
   container.innerHTML = `
   <div class="rules-block" style="border-color:rgba(255,71,87,.4);background:rgba(255,71,87,.06)">
-  <h3 style="color:var(--red)">🆕 New Rule: Self-Matchups</h3>
+  <h3 style="color:var(--red)">New Rule: Self-Matchups</h3>
   <p>If you own both teams in a match, you can't steal from yourself. The losing team is just removed from your squad, nobody gains it.</p>
 </div>
     <div class="rules-block">
