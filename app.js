@@ -843,21 +843,13 @@ function renderLeaderboard() {
   // so this never moves no matter what happens in the knockout rounds.
   if (Object.keys(state.owners).length > 0) {
     const r32Final = getR32FinalCounts();
-    const r32Card = document.createElement('div');
-    r32Card.className = 'r32-final-card';
-    r32Card.innerHTML = `
-      <div class="r32-final-title">Round 32 Final</div>
-      <div class="r32-final-rows">
-        ${r32Final.map((p, i) => `
-          <div class="r32-final-row">
-            <span class="r32-final-rank">${i + 1}</span>
-            <span class="r32-final-name">${p.name}</span>
-            <span class="r32-final-count">${p.count}</span>
-          </div>`).join('')}
-      </div>`;
-    container.appendChild(r32Card);
+    const r32Bar = document.createElement('div');
+    r32Bar.className = 'r32-final-bar';
+    r32Bar.innerHTML = `<span class="r32-final-label">Round 32 Final:</span>` +
+      r32Final.map(p => `<span class="r32-final-item">${p.name}: <strong>${p.count}</strong></span>`)
+        .join('<span class="r32-final-sep">|</span>');
+    container.appendChild(r32Bar);
   }
-
   const hasResults = Object.keys(state.matchResults).length > 0;
 
   if (state.revealFeed && state.revealFeed.length > 0) {
