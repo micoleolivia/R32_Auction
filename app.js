@@ -263,7 +263,7 @@ async function login(name) {
   renderLeaderboard();
   if (isAdmin) renderResults();
 
-  showSection('rules', { target: document.getElementById('nav-rules') });
+  showSection('leaderboard', { target: document.getElementById('nav-leaderboard') });
   startLiveListener();
   startTicker();
   showLoading(false);
