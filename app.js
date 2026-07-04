@@ -845,7 +845,7 @@ function renderLeaderboard() {
     const r32Final = getR32FinalCounts();
     const r32Bar = document.createElement('div');
     r32Bar.className = 'r32-final-bar';
-    r32Bar.innerHTML = `<span class="r32-final-label">Round 32 Final:</span>` +
+    r32Bar.innerHTML = `<span class="r32-final-label">Round 32 Final Standings:</span>` +
       r32Final.map(p => `<span class="r32-final-item">${p.name}: <strong>${p.count}</strong></span>`)
         .join('<span class="r32-final-sep">|</span>');
     container.appendChild(r32Bar);
