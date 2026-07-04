@@ -953,7 +953,7 @@ function renderLeaderboard() {
       </div>
       <div>
         <div class="lb-points" style="color:var(--gold)">${player.known}</div>
-        <div class="lb-pts-label">KNOWN</div>
+        <div class="lb-pts-label">TEAMS</div>
       </div>`;
     container.appendChild(row);
   });
