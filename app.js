@@ -977,15 +977,19 @@ function renderLeaderboard() {
     container.appendChild(gGrid);
   }
 
-  // UNCLAIMED SURVIVORS — teams that won their match but currently have no owner
-  // (nobody bid on them originally, or they were owned and later lost without being recollected)
-  const unclaimedEntries = [];
+  // UNCLAIMED SURVIVORS — teams that won a match but currently have no owner,
+  // and have NOT themselves been eliminated in a later round.
+  // De-duped by slotId since a team can appear as a winnerSlot more than once
+  // across rounds (e.g. won R32 unclaimed, then also won R16).
+  const unclaimedWinnerIds = new Set();
+  const eliminatedSlotIds = new Set();
   Object.values(state.matchResults).forEach(result => {
-    const winnerSlot = result.winnerSlot;
-    if (!getCurrentHolder(winnerSlot)) {
-      unclaimedEntries.push({ slot: getSlot(winnerSlot) });
-    }
+    unclaimedWinnerIds.add(result.winnerSlot);
+    eliminatedSlotIds.add(result.loserSlot);
   });
+  const unclaimedEntries = [...unclaimedWinnerIds]
+    .filter(slotId => !getCurrentHolder(slotId) && !eliminatedSlotIds.has(slotId))
+    .map(slotId => ({ slot: getSlot(slotId) }));
 
   if (unclaimedEntries.length > 0) {
     const uDivider = document.createElement('div');
