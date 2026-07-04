@@ -241,9 +241,11 @@ header{display:flex;align-items:center;justify-content:space-between;padding:0 1
 .graveyard-owner{font-size:.65rem;color:var(--text3);font-style:italic}
 
 
-/* R32 FINAL LEADERBOARD STRIP */
-.r32-final-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;background:var(--card);border:1px solid rgba(245,197,24,.35);border-radius:100px;padding:12px 20px;margin-bottom:24px;font-size:.85rem}
-.r32-final-label{font-family:'Bebas Neue',sans-serif;letter-spacing:1px;color:var(--gold);font-size:.9rem;margin-right:4px}
-.r32-final-item{color:var(--text);white-space:nowrap}
-.r32-final-item strong{color:var(--gold);font-family:'Bebas Neue',sans-serif;font-size:1rem}
-.r32-final-sep{color:var(--text3)}
+/* R32 FINAL LEADERBOARD CARD */
+.r32-final-card{background:var(--card);border:1px solid rgba(245,197,24,.35);border-radius:var(--radius-lg);padding:18px 20px;margin-bottom:24px;max-width:340px}
+.r32-final-title{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;color:var(--gold);font-size:1rem;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.r32-final-rows{display:flex;flex-direction:column;gap:8px}
+.r32-final-row{display:flex;align-items:center;gap:10px;font-size:.88rem}
+.r32-final-rank{width:18px;color:var(--text3);font-weight:700}
+.r32-final-name{flex:1;color:var(--text);font-weight:600}
+.r32-final-count{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--gold)}
