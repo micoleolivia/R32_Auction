@@ -822,10 +822,35 @@ window.clearResult = async function(matchId) {
 // ============================================
 // LEADERBOARD
 // ============================================
+function getR32FinalCounts() {
+  const counts = {};
+  PLAYERS.forEach(p => { counts[p.name] = 0; });
+  Object.values(state.owners).forEach(o => {
+    counts[o.username] = (counts[o.username] || 0) + 1;
+  });
+  return PLAYERS.map(p => ({ ...p, count: counts[p.name] || 0 }))
+    .sort((a, b) => b.count - a.count);
+}
+
+
 function renderLeaderboard() {
   const container = document.getElementById('leaderboard-container');
   if (!container) return;
   container.innerHTML = '';
+
+  // ROUND 32 FINAL LEADERBOARD — frozen strip of who won what at the live
+  // auction itself. Built from state.owners, which is set once during
+  // closeBiddingPhase and never changed by later steals/eliminations —
+  // so this never moves no matter what happens in the knockout rounds.
+  if (Object.keys(state.owners).length > 0) {
+    const r32Final = getR32FinalCounts();
+    const r32Bar = document.createElement('div');
+    r32Bar.className = 'r32-final-bar';
+    r32Bar.innerHTML = `<span class="r32-final-label">🏆 Round 32 Final:</span>` +
+      r32Final.map(p => `<span class="r32-final-item">${p.icon} ${p.name}: <strong>${p.count}</strong></span>`)
+        .join('<span class="r32-final-sep">|</span>');
+    container.appendChild(r32Bar);
+  }
 
   const hasResults = Object.keys(state.matchResults).length > 0;
 
