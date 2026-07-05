@@ -301,6 +301,21 @@ window.showSection = showSection;
 // ============================================
 // LIVE AUCTION ENGINE
 // ============================================
+window.fixR16Undo = async function() {
+  if (!confirm('Apply one-time fix for the broken R16 undo?')) return;
+  if (!state.collection['Zac']) state.collection['Zac'] = [];
+  if (!state.collection['Zac'].some(c => c.slotId === 's2')) {
+    state.collection['Zac'].push({ slotId: 's2', how: 'original' }); // Canada back to Zac
+  }
+  if (state.collection['Micole']) {
+    state.collection['Micole'] = state.collection['Micole'].filter(c => c.slotId !== 's6'); // remove Paraguay
+  }
+  await saveToFirebase({ collection: state.collection });
+  showToast('R16 undo fix applied!', 'success');
+  renderLeaderboard(); renderMyPicks();
+};
+
+
 function startTicker() {
   if (tickInterval) clearInterval(tickInterval);
   tickInterval = setInterval(() => {
