@@ -807,10 +807,24 @@ window.recordResult = async function(matchId, winnerSlot, loserSlot) {
 
 window.clearResult = async function(matchId) {
   if (!confirm('Undo this result? Re-enter the correct result immediately after to keep squads accurate.')) return;
+  const result = state.matchResults[matchId];
+  if (!result) return;
+  const { winnerSlot, loserSlot, loserOriginalOwner } = result;
+
+  const currentHolderOfLoser = getCurrentHolder(loserSlot);
+  if (currentHolderOfLoser) {
+    state.collection[currentHolderOfLoser] = state.collection[currentHolderOfLoser].filter(c => c.slotId !== loserSlot);
+  }
+  if (loserOriginalOwner) {
+    if (!state.collection[loserOriginalOwner]) state.collection[loserOriginalOwner] = [];
+    state.collection[loserOriginalOwner].push({ slotId: loserSlot, how: 'original' });
+  }
+
   delete state.matchResults[matchId];
   try {
     await setDoc(doc(db,'worldcup2026_r32','shared'), {
-      matchResults: { [matchId]: deleteField() }
+      matchResults: { [matchId]: deleteField() },
+      collection: state.collection
     }, { merge: true });
   } catch(e) { showToast('Save failed','error'); return; }
   showToast('Result undone.','');
