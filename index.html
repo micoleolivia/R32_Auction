@@ -56,6 +56,8 @@
         <button id="nav-leaderboard" class="nav-btn" onclick="showSection('leaderboard',event)">Leaderboard</button>
       </nav>
       <div class="header-actions">
+        <button id="snapshot-btn" class="reset-btn hidden" onclick="captureR32Snapshot()">📸 Freeze View</button>
+        <button id="unfreeze-btn" class="reset-btn hidden" onclick="unfreezeR32Snapshot()">🔓 Unfreeze View</button>
         <button id="reset-btn" class="reset-btn hidden" onclick="resetEverything()">🗑️ Reset</button>
         <button class="logout-btn" onclick="logout()">← Switch</button>
       </div>
