@@ -35,94 +35,75 @@ const REVEAL_SECONDS  = 10;
 
 // ============================================
 // ROUND OF 32 SLOTS
-// Each slot = one team. Confirmed = known team, unconfirmed = TBA.
-// To update a TBA: change confirmed:false to confirmed:true,
-// update name and flag, and remove the placeholder line.
 // ============================================
 const slots = [
-  // Match 1: South Africa vs Canada
   { id:'s1',  name:'South Africa',    flag:'🇿🇦', confirmed:true,  group:'A' },
   { id:'s2',  name:'Canada',          flag:'🇨🇦', confirmed:true,  group:'B' },
-  // Match 2: Netherlands vs Morocco
   { id:'s3',  name:'Netherlands',     flag:'🇳🇱', confirmed:true,  group:'F' },
   { id:'s4',  name:'Morocco',         flag:'🇲🇦', confirmed:true,  group:'C' },
-  // Match 3: Germany vs Paraguay
   { id:'s5',  name:'Germany',         flag:'🇩🇪', confirmed:true,  group:'E' },
   { id:'s6',  name:'Paraguay',        flag:'🇵🇾', confirmed:true,  group:'D' },
-  // Match 4: France vs Sweden
   { id:'s7',  name:'France',          flag:'🇫🇷', confirmed:true,  group:'I' },
   { id:'s8',  name:'Sweden',          flag:'🇸🇪', confirmed:true,  group:'F' },
-  // Match 5: Belgium vs Senegal
   { id:'s9',  name:'Belgium',         flag:'🇧🇪', confirmed:true,  group:'G' },
   { id:'s10', name:'Senegal',         flag:'🇸🇳', confirmed:true,  group:'I' },
-  // Match 6: USA vs Bosnia & Herzegovina
   { id:'s11', name:'USA',             flag:'🇺🇸', confirmed:true,  group:'D' },
   { id:'s12', name:'Bosnia & Herz.',  flag:'🇧🇦', confirmed:true,  group:'B' },
-  // Match 7: Spain vs Austria
   { id:'s13', name:'Spain',           flag:'🇪🇸', confirmed:true,  group:'H' },
   { id:'s14', name:'Austria',         flag:'🇦🇹', confirmed:true,  group:'J' },
-  // Match 8: Portugal vs Croatia
   { id:'s15', name:'Portugal',        flag:'🇵🇹', confirmed:true,  group:'K' },
   { id:'s16', name:'Croatia',         flag:'🇭🇷', confirmed:true,  group:'L' },
-  // Match 9: Brazil vs Japan
   { id:'s17', name:'Brazil',          flag:'🇧🇷', confirmed:true,  group:'C' },
   { id:'s18', name:'Japan',           flag:'🇯🇵', confirmed:true,  group:'F' },
-  // Match 10: Ivory Coast vs Norway
   { id:'s19', name:'Ivory Coast',     flag:'🇨🇮', confirmed:true,  group:'E' },
   { id:'s20', name:'Norway',          flag:'🇳🇴', confirmed:true,  group:'I' },
-  // Match 11: Mexico vs Ecuador
   { id:'s21', name:'Mexico',          flag:'🇲🇽', confirmed:true,  group:'A' },
   { id:'s22', name:'Ecuador',         flag:'🇪🇨', confirmed:true,  group:'E' },
-  // Match 12: England vs DR Congo
   { id:'s23', name:'England',         flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', confirmed:true,  group:'L' },
   { id:'s24', name:'DR Congo',        flag:'🇨🇩', confirmed:true,  group:'K' },
-  // Match 13: Switzerland vs Algeria
   { id:'s25', name:'Switzerland',     flag:'🇨🇭', confirmed:true,  group:'B' },
   { id:'s26', name:'Algeria',         flag:'🇩🇿', confirmed:true,  group:'J' },
-  // Match 14: Colombia vs Ghana
   { id:'s27', name:'Colombia',        flag:'🇨🇴', confirmed:true,  group:'K' },
   { id:'s28', name:'Ghana',           flag:'🇬🇭', confirmed:true,  group:'L' },
-  // Match 15: Australia vs Egypt
   { id:'s29', name:'Australia',       flag:'🇦🇺', confirmed:true,  group:'D' },
   { id:'s30', name:'Egypt',           flag:'🇪🇬', confirmed:true,  group:'G' },
-  // Match 16: Argentina vs Cabo Verde
   { id:'s31', name:'Argentina',       flag:'🇦🇷', confirmed:true,  group:'J' },
   { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
 
   // ROUND OF 16 — teams not yet known
-{ id:'r16tba1', name:'Egypt', flag:'🇪🇬', confirmed:false, placeholder:"Switzerland's R16 opponent" },
-{ id:'r16tba2', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team A' },
-{ id:'r16tba3', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team B' },
+  { id:'r16tba1', name:'Egypt', flag:'🇪🇬', confirmed:false, placeholder:"Switzerland's R16 opponent" },
+  { id:'r16tba2', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team A' },
+  { id:'r16tba3', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team B' },
 ];
 
 const r32Matches = [
-  { id:'r32-1',  slotA:'s1',  slotB:'s2'  },  // South Africa vs Canada
-  { id:'r32-2',  slotA:'s3',  slotB:'s4'  },  // Netherlands vs Morocco
-  { id:'r32-3',  slotA:'s5',  slotB:'s6'  },  // Germany vs Paraguay
-  { id:'r32-4',  slotA:'s7',  slotB:'s8'  },  // France vs Sweden
-  { id:'r32-5',  slotA:'s9',  slotB:'s10' },  // Belgium vs TBA
-  { id:'r32-6',  slotA:'s11', slotB:'s12' },  // USA vs Bosnia & Herz.
-  { id:'r32-7',  slotA:'s13', slotB:'s14' },  // Spain vs TBA
-  { id:'r32-8',  slotA:'s15', slotB:'s16' },  // TBA vs TBA
-  { id:'r32-9',  slotA:'s17', slotB:'s18' },  // Brazil vs Japan
-  { id:'r32-10', slotA:'s19', slotB:'s20' },  // Ivory Coast vs Norway
-  { id:'r32-11', slotA:'s21', slotB:'s22' },  // Mexico vs TBA
-  { id:'r32-12', slotA:'s23', slotB:'s24' },  // TBA vs TBA
-  { id:'r32-13', slotA:'s25', slotB:'s26' },  // Switzerland vs TBA
-  { id:'r32-14', slotA:'s27', slotB:'s28' },  // TBA vs TBA
-  { id:'r32-15', slotA:'s29', slotB:'s30' },  // Australia vs Egypt
-  { id:'r32-16', slotA:'s31', slotB:'s32' },  // Argentina vs Cabo Verde
+  { id:'r32-1',  slotA:'s1',  slotB:'s2'  },
+  { id:'r32-2',  slotA:'s3',  slotB:'s4'  },
+  { id:'r32-3',  slotA:'s5',  slotB:'s6'  },
+  { id:'r32-4',  slotA:'s7',  slotB:'s8'  },
+  { id:'r32-5',  slotA:'s9',  slotB:'s10' },
+  { id:'r32-6',  slotA:'s11', slotB:'s12' },
+  { id:'r32-7',  slotA:'s13', slotB:'s14' },
+  { id:'r32-8',  slotA:'s15', slotB:'s16' },
+  { id:'r32-9',  slotA:'s17', slotB:'s18' },
+  { id:'r32-10', slotA:'s19', slotB:'s20' },
+  { id:'r32-11', slotA:'s21', slotB:'s22' },
+  { id:'r32-12', slotA:'s23', slotB:'s24' },
+  { id:'r32-13', slotA:'s25', slotB:'s26' },
+  { id:'r32-14', slotA:'s27', slotB:'s28' },
+  { id:'r32-15', slotA:'s29', slotB:'s30' },
+  { id:'r32-16', slotA:'s31', slotB:'s32' },
 ];
 
 const r16Matches = [
-  { id:'r16-1', slotA:'s2',  slotB:'s4'  },       // Canada vs Morocco
-  { id:'r16-2', slotA:'s7',  slotB:'s6'  },       // France vs Paraguay
-  { id:'r16-3', slotA:'s11', slotB:'s9'  },       // USA vs Belgium
-  { id:'r16-4', slotA:'s13', slotB:'s15' },       // Spain vs Portugal
-  { id:'r16-5', slotA:'s17', slotB:'s20' },       // Brazil vs Norway
-  { id:'r16-6', slotA:'s23', slotB:'s21' },       // England vs Mexico
-  { id:'r16-7', slotA:'s25', slotB:'r16tba1' },   // Switzerland vs TBA
-  { id:'r16-8', slotA:'r16tba2', slotB:'r16tba3' }, // TBA vs TBA
+  { id:'r16-1', slotA:'s2',  slotB:'s4'  },
+  { id:'r16-2', slotA:'s7',  slotB:'s6'  },
+  { id:'r16-3', slotA:'s11', slotB:'s9'  },
+  { id:'r16-4', slotA:'s13', slotB:'s15' },
+  { id:'r16-5', slotA:'s17', slotB:'s20' },
+  { id:'r16-6', slotA:'s23', slotB:'s21' },
+  { id:'r16-7', slotA:'s25', slotB:'r16tba1' },
+  { id:'r16-8', slotA:'r16tba2', slotB:'r16tba3' },
 ];
 
 // ============================================
@@ -142,6 +123,7 @@ let state = {
   matchResults: {},
   slotOverrides:{},
   revealFeed:   [],
+  r32Snapshot:  null,
 };
 
 let unsubscribe = null;
@@ -177,6 +159,7 @@ function startLiveListener() {
       state.matchResults  = d.matchResults  || {};
       state.slotOverrides = d.slotOverrides || {};
       state.revealFeed    = d.revealFeed    || [];
+      state.r32Snapshot   = d.r32Snapshot   || state.r32Snapshot;
       refreshAll();
     }
   });
@@ -210,8 +193,12 @@ function getCoinsRemaining(username) {
   return STARTING_COINS - getCoinsSpent(username);
 }
 
+function getEffState() {
+  return (currentUser !== 'Micole' && state.r32Snapshot) ? state.r32Snapshot : state;
+}
+
 function getCollection(username) {
-  return state.collection[username] || [];
+  return getEffState().collection[username] || [];
 }
 
 function getTotalTeams(username) {
@@ -219,7 +206,7 @@ function getTotalTeams(username) {
 }
 
 function getCurrentHolder(slotId) {
-  for (const [username, col] of Object.entries(state.collection)) {
+  for (const [username, col] of Object.entries(getEffState().collection)) {
     if (col.find(c => c.slotId === slotId)) return username;
   }
   return null;
@@ -247,6 +234,7 @@ async function login(name) {
   state.matchResults  = d.matchResults  || {};
   state.slotOverrides = d.slotOverrides || {};
   state.revealFeed    = d.revealFeed    || [];
+  state.r32Snapshot   = d.r32Snapshot   || state.r32Snapshot;
 
   currentUser = name;
   const isAdmin = name === 'Micole';
@@ -255,6 +243,8 @@ async function login(name) {
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('reset-btn').classList.toggle('hidden', !isAdmin);
   document.getElementById('nav-results').classList.toggle('hidden', !isAdmin);
+  document.getElementById('snapshot-btn').classList.toggle('hidden', !isAdmin);
+  document.getElementById('unfreeze-btn').classList.toggle('hidden', !isAdmin);
 
   updateHeader();
   renderRules();
@@ -301,8 +291,6 @@ window.showSection = showSection;
 // ============================================
 // LIVE AUCTION ENGINE
 // ============================================
-
-
 function startTicker() {
   if (tickInterval) clearInterval(tickInterval);
   tickInterval = setInterval(() => {
@@ -333,6 +321,7 @@ async function forceCatchUp() {
     state.matchResults  = fresh.matchResults  || state.matchResults;
     state.slotOverrides = fresh.slotOverrides || state.slotOverrides;
     state.revealFeed    = fresh.revealFeed    || state.revealFeed;
+    state.r32Snapshot   = fresh.r32Snapshot   || state.r32Snapshot;
   } catch(e) { /* listener will catch up shortly */ }
   refreshAll();
 }
@@ -669,7 +658,7 @@ function renderMyPicks() {
 
   const myCol = getCollection(currentUser);
   const coinsSpent = getCoinsSpent(currentUser);
-  const originalBought = Object.values(state.owners).filter(o => o.username === currentUser).length;
+  const originalBought = Object.values(getEffState().owners).filter(o => o.username === currentUser).length;
 
   const summary = document.createElement('div');
   summary.className = 'squad-summary';
@@ -690,7 +679,7 @@ function renderMyPicks() {
   grid.className = 'squad-grid';
   myCol.forEach(({ slotId, how }) => {
     const slot = getSlot(slotId);
-    const isEliminated = Object.values(state.matchResults).some(r => r.loserSlot === slotId);
+    const isEliminated = Object.values(getEffState().matchResults).some(r => r.loserSlot === slotId);
     const card = document.createElement('div');
     const squadCls = how === 'original' ? ' squad-original' : how === 'stolen' ? ' squad-stolen' : ' squad-collected';
     card.className = 'squad-card' + (isEliminated ? ' squad-eliminated' : '') + squadCls;
@@ -839,16 +828,35 @@ window.fixR16Undo = async function() {
   if (!confirm('Apply one-time fix for the broken R16 undo?')) return;
   if (!state.collection['Zac']) state.collection['Zac'] = [];
   if (!state.collection['Zac'].some(c => c.slotId === 's2')) {
-    state.collection['Zac'].push({ slotId: 's2', how: 'original' }); // Canada back to Zac
+    state.collection['Zac'].push({ slotId: 's2', how: 'original' });
   }
   if (state.collection['Micole']) {
-    state.collection['Micole'] = state.collection['Micole'].filter(c => c.slotId !== 's6'); // remove Paraguay
+    state.collection['Micole'] = state.collection['Micole'].filter(c => c.slotId !== 's6');
   }
   await saveToFirebase({ collection: state.collection });
   showToast('R16 undo fix applied!', 'success');
   renderLeaderboard(); renderMyPicks();
 };
 
+window.captureR32Snapshot = async function() {
+  if (!confirm('Freeze everyone else\'s view at the current state? Only run this once, right before you start entering R16+ results.')) return;
+  const snapshot = {
+    collection: JSON.parse(JSON.stringify(state.collection)),
+    matchResults: JSON.parse(JSON.stringify(state.matchResults)),
+    owners: JSON.parse(JSON.stringify(state.owners)),
+    revealFeed: JSON.parse(JSON.stringify(state.revealFeed)),
+  };
+  state.r32Snapshot = snapshot;
+  await saveToFirebase({ r32Snapshot: snapshot });
+  showToast('Snapshot captured — others are now frozen here.', 'success');
+};
+
+window.unfreezeR32Snapshot = async function() {
+  if (!confirm('Unfreeze — let everyone see live R16+ results again?')) return;
+  state.r32Snapshot = null;
+  await saveToFirebase({ r32Snapshot: deleteField() });
+  showToast('Unfrozen — everyone sees live results now.', 'success');
+};
 
 // ============================================
 // LEADERBOARD
@@ -862,17 +870,12 @@ function getR32FinalCounts() {
   ].sort((a, b) => b.count - a.count);
 }
 
-
 function renderLeaderboard() {
   const container = document.getElementById('leaderboard-container');
   if (!container) return;
   container.innerHTML = '';
 
-  // ROUND 32 FINAL LEADERBOARD — frozen strip of who won what at the live
-  // auction itself. Built from state.owners, which is set once during
-  // closeBiddingPhase and never changed by later steals/eliminations —
-  // so this never moves no matter what happens in the knockout rounds.
-  if (Object.keys(state.owners).length > 0) {
+  if (Object.keys(getEffState().owners).length > 0) {
     const r32Final = getR32FinalCounts();
     const r32Bar = document.createElement('div');
     r32Bar.className = 'r32-final-bar';
@@ -881,9 +884,9 @@ function renderLeaderboard() {
         .join('<span class="r32-final-sep">|</span>');
     container.appendChild(r32Bar);
   }
-  const hasResults = Object.keys(state.matchResults).length > 0;
+  const hasResults = Object.keys(getEffState().matchResults).length > 0;
 
-  if (state.revealFeed && state.revealFeed.length > 0) {
+  if (getEffState().revealFeed && getEffState().revealFeed.length > 0) {
     const feedTitle = document.createElement('div');
     feedTitle.className = 'auction-section-title';
     feedTitle.textContent = '📣 Reveal Feed';
@@ -895,10 +898,10 @@ function renderLeaderboard() {
     container.appendChild(feedWrap);
     renderRevealFeedItems(feedWrap, false);
 
-    if (state.revealFeed.length > 3) {
+    if (getEffState().revealFeed.length > 3) {
       const expandBtn = document.createElement('button');
       expandBtn.className = 'reveal-feed-expand-btn';
-      expandBtn.textContent = `Show all ${state.revealFeed.length} updates ▾`;
+      expandBtn.textContent = `Show all ${getEffState().revealFeed.length} updates ▾`;
       expandBtn.onclick = () => toggleRevealFeed(feedWrap, expandBtn);
       container.appendChild(expandBtn);
     }
@@ -933,7 +936,7 @@ function renderLeaderboard() {
   }
 
   const revealedSlotIds = new Set();
-  Object.values(state.matchResults).forEach(r => {
+  Object.values(getEffState().matchResults).forEach(r => {
     revealedSlotIds.add(r.winnerSlot);
     revealedSlotIds.add(r.loserSlot);
   });
@@ -956,7 +959,7 @@ function renderLeaderboard() {
     const row = document.createElement('div');
     row.className = `leaderboard-row ${classes[i]||''}`;
 
-    const isElim = (slotId) => Object.values(state.matchResults).some(r => r.loserSlot === slotId);
+    const isElim = (slotId) => Object.values(getEffState().matchResults).some(r => r.loserSlot === slotId);
 
     const ownedBadges = player.knownTeams.filter(t => t.how === 'original').map(({ slotId }) => {
       const slot = getSlot(slotId);
@@ -988,11 +991,11 @@ function renderLeaderboard() {
       </div>`;
     container.appendChild(row);
   });
-// GRAVEYARD
+
   const graveyardEntries = [];
-  Object.entries(state.matchResults).forEach(([matchId, result]) => {
+  Object.entries(getEffState().matchResults).forEach(([matchId, result]) => {
     const loserSlot = result.loserSlot;
-    const originalOwner = result.loserOriginalOwner || state.owners[loserSlot]?.username || null;
+    const originalOwner = result.loserOriginalOwner || getEffState().owners[loserSlot]?.username || null;
     const currentlyHeld = getCurrentHolder(loserSlot);
     if (originalOwner && !currentlyHeld) {
       graveyardEntries.push({ slot: getSlot(loserSlot), originalOwner });
@@ -1031,13 +1034,9 @@ function renderLeaderboard() {
     container.appendChild(gGrid);
   }
 
-  // UNCLAIMED SURVIVORS — teams that won a match but currently have no owner,
-  // and have NOT themselves been eliminated in a later round.
-  // De-duped by slotId since a team can appear as a winnerSlot more than once
-  // across rounds (e.g. won R32 unclaimed, then also won R16).
   const unclaimedWinnerIds = new Set();
   const eliminatedSlotIds = new Set();
-  Object.values(state.matchResults).forEach(result => {
+  Object.values(getEffState().matchResults).forEach(result => {
     unclaimedWinnerIds.add(result.winnerSlot);
     eliminatedSlotIds.add(result.loserSlot);
   });
@@ -1076,7 +1075,7 @@ function renderLeaderboard() {
 
 function renderRevealFeedItems(wrap, showAll) {
   wrap.innerHTML = '';
-  const items = showAll ? state.revealFeed : state.revealFeed.slice(0, 3);
+  const items = showAll ? getEffState().revealFeed : getEffState().revealFeed.slice(0, 3);
   items.forEach(entry => {
     const item = document.createElement('div');
     item.className = `reveal-feed-item reveal-feed-${entry.kind || 'neutral'}`;
@@ -1091,8 +1090,9 @@ function toggleRevealFeed(wrap, btn) {
   const isExpanded = btn.dataset.expanded === 'true';
   renderRevealFeedItems(wrap, !isExpanded);
   btn.dataset.expanded = (!isExpanded).toString();
-  btn.textContent = !isExpanded ? 'Show less ▴' : `Show all ${state.revealFeed.length} updates ▾`;
+  btn.textContent = !isExpanded ? 'Show less ▴' : `Show all ${getEffState().revealFeed.length} updates ▾`;
 }
+
 // ============================================
 // TRIAL RUN
 // ============================================
@@ -1319,48 +1319,33 @@ function renderRules() {
   const container = document.getElementById('rules-container');
   if (!container) return;
   container.innerHTML = `
-  <div class="rules-block" style="border-color:rgba(255,71,87,.4);background:rgba(255,71,87,.06)">
-  <h3 style="color:var(--red)">New Rule: Self-Matchups</h3>
-  <p>If you own both teams in a match, you can't steal from yourself. The losing team is just removed from your squad, nobody gains it.</p>
-</div>
     <div class="rules-block">
-      <h3>The Gist</h3>
-      <p>It's a live, blind auction for World Cup teams.</p>
-      <p>Everyone starts with <strong>120 coins</strong>. Win teams in the auction, watch them play, steal teams from anyone your teams knock out. Whoever owns the most teams at the end wins.</p>
-     <p>Do not enter Micole's profile, it has scary looking stuff.</p>
+      <h3>World Cup 2026 — Round of 32 Auction: How It Works</h3>
+      <h3 style="margin-top:16px">The Auction Itself</h3>
+      <p>🏆 You start with <strong>120 coins</strong>.</p>
+      <p>🏆 For each of the matches, you get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
+      <p>🏆 Minimum bid is ${MIN_BID} coins.</p>
+      <p>🏆 Bidding is blind — you can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
+      <p>🏆 Once bidding closes, you see your own outcome for ${REVEAL_SECONDS} seconds (won or lost), then it moves straight to the next match.</p>
+      <p>🏆 You only ever see your own result — ownership stays secret until that team actually plays in the real World Cup. That's when the big reveal happens (who stole what from whom).</p>
+      <p>🏆 After the auction, there's nothing more to do — the system takes it from there. You just watch your teams steal or get stolen from as real matches are played.</p>
     </div>
     <div class="rules-block">
-      <h3>How Bidding Works</h3>
-      <p>🏆 Auction starts at 19:00 on June 28th, if this does not suit you write a complaint to Micole.<br>If Micole does not get any complaints she will assume the time suits everyone perfectly and the auction will proceed.</p>
-      <p>🏆 When the auction starts, Micole will send a message on the house sitting group. <br>If your screen does not have a countdown after Micole sent a message then reload your page. <br> All should be fine after that. <br>For some reason, the system does not work well on ipads, so don't use one.</p>
-      <p>🏆 Matches open one at a time. You get ${BID_SECONDS} seconds to blind-bid on ONE of the two teams (never both).</p>
-      <p>🏆 The matches will open in chronological order of date played</p>
-      <p>🏆 The minimum bid that can be made is 5 coins. However, you do have the option not to bid at all on a match. </p>
-      <p>🏆 You can't see anyone else's bid. Highest bid wins. Ties go to whoever locked in first.</p>
-      <p>🏆 Once bidding closes, you only ever see your own result for ${REVEAL_SECONDS} seconds: either a congratulatory message or a sorry-you-lost message, then it's straight on to the next match.</p>
-      <p>🏆 Ownership of other members teams becomes visible after the match takes place. That's when the reveal happens (who stole what from whom).</p>
-      <p>🏆 There are ${r32Matches.length} matches, the whole auction will take about ${Math.round(r32Matches.length*(BID_SECONDS+REVEAL_SECONDS)/60)} minutes.</p>
-      <p>🏆 After the auction closes, you don't need to do anything else, the system will handle the rest. All you need to do is watch how your teams steal or get stolen from!</p>
-      <p>🏆 If it seems like there are a lot of rules, try the "Trial Run" (more details below) you'll find it is quite simple.</p>
-    </div>
-    <div class="rules-block">
-      <h3>How to Get More Teams After the Auction</h3>
+      <h3>How You Gain or Lose Teams After the Auction</h3>
       <div class="rules-scoring">
-        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal their team</div>
-        <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect that unowned team</div>
-        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to someone's owned team → your opponent steals your team</div>
-        <div class="rules-score-row"><span class="score-badge neutral">Lose</span> Your team loses to an unowned team → your losing team ends up in the graveyard (below the leaderboard table, the graveyard will appear as soon as a team ends up in it) </div>
-        <div class="rules-score-row"><span class="score-badge neutral">Self</span> If you own both teams in a match, you can't steal from yourself. The losing team is just removed from your squad, nobody gains it.</div>
-        <div class="rules-score-row"><span class="score-badge neutral">Self</span> If you own both teams in a match, you can't steal from yourself — the losing team is just removed from your squad, nobody gains it.</div>
+        <div class="rules-score-row"><span class="score-badge gold">Steal</span> Your team beats someone's owned team → you steal that team from them.</div>
+        <div class="rules-score-row"><span class="score-badge gold">Collect</span> Your team beats an unowned team → you collect it.</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose to an owned team</span> Your team loses to someone's owned team → they steal your team from you.</div>
+        <div class="rules-score-row"><span class="score-badge neutral">Lose to an unowned team</span> Your team loses to an unowned team → that team just disappears, belongs to no one.</div>
       </div>
     </div>
     <div class="rules-block">
-      <h3>💡 A Little Hint 💡</h3>
-      <p>More teams = more chances to steal (or be stolen) and climb the leaderboard. Don't blow your whole budget on one team, spread it out, or don't and accept that you're limiting your own chances of climbing the leaderboard.</p>
+      <h3>💡 Strategy Tip</h3>
+      <p>More teams = more chances to steal (or be stolen from) and climb the leaderboard. Spreading your coins across several teams gives you more shots, but going all-in on one team is also a valid (riskier) strategy.</p>
     </div>
     <div class="rules-block" style="border-color:rgba(245,197,24,.4);background:rgba(245,197,24,.04)">
-      <h3>Want a Trial Run?</h3>
-      <p>Head to the <strong>Trial Run</strong> tab to practice on 3 sample matches against simulated bidders before the real auction starts. Replay as many times as you like. Nothing there counts.</p>
+      <h3>Trial Run</h3>
+      <p>There's a <strong>Trial Run</strong> tab with 3 sample matches against simulated bidders — replay as many times as you like to get comfortable before the real auction.</p>
     </div>`;
 }
 
