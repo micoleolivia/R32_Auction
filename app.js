@@ -71,9 +71,9 @@ const slots = [
   { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
 
   // ROUND OF 16 — teams not yet known
-  { id:'r16tba1', name:'Egypt', flag:'🇪🇬', confirmed:false, placeholder:"Switzerland's R16 opponent" },
-  { id:'r16tba2', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team A' },
-  { id:'r16tba3', name:'TBA', flag:'🏳️', confirmed:false, placeholder:'R16 Match 8 - Team B' },
+  { id:'r16tba1', name:'Colombia', flag:'🇨🇴', confirmed:false, placeholder:"Switzerland's R16 opponent" },
+  { id:'r16tba2', name:'Egypt', flag:'🇪🇬', confirmed:false, placeholder:'R16 Match 8 - Team A' },
+  { id:'r16tba3', name:'Argentina', flag:'🇦🇷', confirmed:false, placeholder:'R16 Match 8 - Team B' },
 ];
 
 const r32Matches = [
