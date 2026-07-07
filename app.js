@@ -70,10 +70,7 @@ const slots = [
   { id:'s31', name:'Argentina',       flag:'🇦🇷', confirmed:true,  group:'J' },
   { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
 
-  // ROUND OF 16 — teams not yet known
-  { id:'r16tba1', name:'Colombia', flag:'🇨🇴', confirmed:true },
-  
-];
+ 
 
 const r32Matches = [
   { id:'r32-1',  slotA:'s1',  slotB:'s2'  },
@@ -101,7 +98,7 @@ const r16Matches = [
   { id:'r16-4', slotA:'s13', slotB:'s15' },
   { id:'r16-5', slotA:'s17', slotB:'s20' },
   { id:'r16-6', slotA:'s23', slotB:'s21' },
-  { id:'r16-7', slotA:'s25', slotB:'r16tba1' },
+  { id:'r16-7', slotA:'s25', slotB:'s27' },
   { id:'r16-8', slotA:'s30', slotB:'s31' },
 ];
 
