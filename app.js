@@ -71,7 +71,7 @@ const slots = [
   { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
 
   // ROUND OF 16 — teams not yet known
-  { id:'r16tba1', name:'Colombia', flag:'🇨🇴', confirmed:false, placeholder:"Switzerland's R16 opponent" },
+  { id:'r16tba1', name:'Colombia', flag:'🇨🇴', confirmed:true },
   
 ];
 
