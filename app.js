@@ -72,8 +72,7 @@ const slots = [
 
   // ROUND OF 16 — teams not yet known
   { id:'r16tba1', name:'Colombia', flag:'🇨🇴', confirmed:false, placeholder:"Switzerland's R16 opponent" },
-  { id:'r16tba2', name:'Egypt', flag:'🇪🇬', confirmed:false, placeholder:'R16 Match 8 - Team A' },
-  { id:'r16tba3', name:'Argentina', flag:'🇦🇷', confirmed:false, placeholder:'R16 Match 8 - Team B' },
+  
 ];
 
 const r32Matches = [
@@ -103,7 +102,7 @@ const r16Matches = [
   { id:'r16-5', slotA:'s17', slotB:'s20' },
   { id:'r16-6', slotA:'s23', slotB:'s21' },
   { id:'r16-7', slotA:'s25', slotB:'r16tba1' },
-  { id:'r16-8', slotA:'r16tba2', slotB:'r16tba3' },
+  { id:'r16-8', slotA:'s30', slotB:'s31' },
 ];
 
 // ============================================
