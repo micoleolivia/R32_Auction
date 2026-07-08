@@ -70,7 +70,7 @@ const slots = [
   { id:'s31', name:'Argentina',       flag:'🇦🇷', confirmed:true,  group:'J' },
   { id:'s32', name:'Cabo Verde',      flag:'🇨🇻', confirmed:true,  group:'K' },
 
- 
+]; 
 
 const r32Matches = [
   { id:'r32-1',  slotA:'s1',  slotB:'s2'  },
