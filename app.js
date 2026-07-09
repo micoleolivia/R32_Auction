@@ -103,7 +103,7 @@ const r16Matches = [
   { id:'r16-9', slotA:'s7', slotB:'s4' },
   { id:'r16-10', slotA:'s13', slotB:'s9' },
   { id:'r16-11', slotA:'s23', slotB:'s20' },
-  { id:'r16-31', slotA:'s7', slotB:'s25' },
+  { id:'r16-31', slotA:'s31', slotB:'s25' },
 ];
 
 // ============================================
