@@ -106,6 +106,8 @@ const r16Matches = [
   { id:'r16-31', slotA:'s31', slotB:'s25' },
   { id:'r16-32', slotA:'s13', slotB:'s7' },
   { id:'r16-33', slotA:'s23', slotB:'s31' },
+  { id:'r16-34', slotA:'s7', slotB:'s23' },
+  { id:'r16-35', slotA:'s13', slotB:'s31' },
 
 
 ];
